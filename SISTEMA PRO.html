@@ -1,0 +1,3043 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Marcenaria PRO - Listagem e Orçamento</title>
+
+        <!-- Dependências Externas (Bibliotecas) - CARREGADAS VIA CDN -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+        <!-- Fontes do Google - CARREGADAS VIA CDN -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+        <!-- Estilos (CSS) Integrados -->
+        <style>
+            :root {
+                --cor-principal: #4a3f35; /* Marrom Escuro (Nogueira) */
+                --cor-secundaria: #b88b4a; /* Dourado / Cobre Envelhecido */
+                --cor-sucesso: #5a7d52; /* Verde Musgo / Oliva */
+                --cor-perigo: #a54040; /* Vermelho Telha */
+                --cor-aviso: #c58a30; /* Amarelo Ocre */
+                --cor-fundo: #f4f1eb; /* Papel Artesanal Claro */
+                --cor-card: #ffffff;
+                --cor-texto: #3d352e;
+                --cor-texto-claro: #8a7f72;
+                --cor-borda: #dcd6c9;
+                --sombra: 0 4px 10px -2px rgba(74, 63, 53, 0.1);
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: "Inter", sans-serif; /* Fonte do Google */
+                background-color: var(--cor-fundo);
+                color: var(--cor-texto);
+                line-height: 1.6;
+                background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise" x="0" y="0" width="100%25" height="100%25"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3CfeColorMatrix type="saturate" values="0"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.025"/%3E%3C/svg%3E');
+            }
+
+            header {
+                background: var(--cor-principal);
+                color: var(--cor-fundo);
+                padding: 1.5rem 2rem;
+                text-align: center;
+                border-bottom: 5px solid var(--cor-secundaria);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            header h1 {
+                font-family: "Roboto Slab", serif; /* Fonte do Google */
+                font-weight: 700;
+                font-size: 2.2rem;
+                letter-spacing: 1px;
+            }
+
+            main {
+                max-width: 1200px;
+                margin: 30px auto;
+                padding: 0 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .card {
+                background-color: var(--cor-card);
+                padding: 25px 30px;
+                border-radius: 12px;
+                border: 1px solid var(--cor-borda);
+                box-shadow: var(--sombra), inset 0 0 0 1px #fff;
+                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            }
+            .card:hover {
+                transform: translateY(-4px) scale(1.01);
+                border-color: var(--cor-secundaria);
+                box-shadow: 0 14px 28px rgba(74,63,53,0.15), 0 10px 10px rgba(74,63,53,0.12), inset 0 0 0 1px #fff;
+            }
+
+            h2,
+            h3 {
+                font-family: "Roboto Slab", serif; /* Fonte do Google */
+                color: var(--cor-principal);
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+                border-bottom: 1px solid var(--cor-borda);
+                padding-bottom: 8px;
+                margin-top: 25px;
+            }
+
+            h2 .step-number {
+                background-color: var(--cor-secundaria);
+                color: white;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                font-weight: 600;
+                flex-shrink: 0;
+            }
+
+            input,
+            select {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid var(--cor-borda);
+                border-radius: 6px;
+                font-size: 1rem;
+                background-color: #f9f7f4;
+                transition: all 0.2s ease;
+            }
+            input:focus,
+            select:focus {
+                outline: none;
+                border-color: var(--cor-secundaria);
+                background-color: white;
+                box-shadow: 0 0 0 3px rgba(184, 139, 74, 0.3);
+            }
+
+            button,
+            .btn {
+                padding: 10px 20px;
+                border: 1px solid transparent;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.95rem;
+                color: white;
+                transition: all 0.2s;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                box-shadow: var(--sombra);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            button:hover,
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+            }
+
+            .btn-primary {
+                background-color: var(--cor-secundaria);
+                border-color: #a07840;
+            }
+            .btn-success {
+                background-color: var(--cor-sucesso);
+                border-color: #4c6b45;
+            }
+            .btn-danger {
+                background-color: var(--cor-perigo);
+                 border-color: #9e2a2a;
+            }
+            .btn-warning {
+                background-color: var(--cor-aviso);
+                color: var(--cor-principal);
+                border-color: #b15c1a;
+            }
+            .btn-secondary {
+                background-color: #7f7063;
+                border-color: #6c5f51;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                box-shadow: var(--sombra);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            th {
+                background-color: var(--cor-principal);
+                color: var(--cor-fundo);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-family: "Inter", sans-serif; /* Fonte do Google */
+            }
+
+            .group-header td, #lista-materiais-compra .group-header-shopping td {
+                background-color: #f9f7f4;
+                font-weight: bold;
+                color: var(--cor-secundaria);
+                font-family: "Roboto Slab", serif; /* Fonte do Google */
+            }
+
+            #orcamento-final {
+                margin-top: 25px;
+                background-color: #f9f7f4;
+                padding: 20px;
+                border-radius: 8px;
+                border-top: 4px solid var(--cor-secundaria);
+            }
+
+            #orcamento-final p {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            #orcamento-final p span:first-child {
+                color: var(--cor-texto-claro);
+            }
+
+            #orcamento-total {
+                font-size: 1.8em;
+                color: var(--cor-sucesso);
+                font-weight: 700;
+                margin-top: 15px;
+                font-family: "Roboto Slab", serif; /* Fonte do Google */
+            }
+
+            #imagemModuloPreview {
+                height: 250px;
+            }
+
+            h4 {
+                margin-top: 15px;
+                margin-bottom: 5px;
+                color: var(--cor-texto-claro);
+                font-weight: 500;
+            }
+            label small {
+                font-weight: 400;
+                color: var(--cor-texto-claro);
+            }
+            .card > p {
+                color: var(--cor-texto-claro);
+                margin-bottom: 20px;
+            }
+            .form-grid {
+                display: grid;
+                gap: 20px;
+                margin-top: 15px;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+            }
+            .form-group label {
+                font-weight: 500;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #5c4b4a;
+            }
+            .form-group .formula-helper {
+                font-size: 0.75rem;
+                color: var(--cor-texto-claro);
+                margin-top: 4px;
+            }
+            input:read-only,
+            select:disabled {
+                background-color: #edeae6;
+                cursor: not-allowed;
+                color: var(--cor-texto-claro);
+            }
+            .btn-sm {
+                padding: 5px 10px;
+                font-size: 0.85rem;
+            }
+            .botoes-acao {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+            .peca-item {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 15px;
+                align-items: flex-end;
+            }
+            .catalogo-gerenciador {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+                max-height: 250px;
+                overflow-y: auto;
+                padding-right: 5px;
+            }
+            .catalogo-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 12px;
+                border-radius: 6px;
+                border: 1px solid var(--cor-borda);
+            }
+            .catalogo-item-com-imagem {
+                gap: 15px;
+            }
+            .catalogo-item-com-imagem img {
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                border-radius: 4px;
+                border: 1px solid var(--cor-borda);
+                background-color: #f9fafb;
+            }
+            .catalogo-item:nth-child(odd) {
+                background-color: var(--cor-card);
+            }
+            .catalogo-item:nth-child(even) {
+                background-color: #f9f7f4;
+            }
+            .catalogo-item span {
+                flex-grow: 1;
+                font-size: 0.9rem;
+            }
+            .resumo-projeto ul {
+                list-style-type: none;
+                padding-left: 0;
+            }
+            .resumo-projeto li {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px;
+                border-bottom: 1px solid var(--cor-borda);
+            }
+            .resumo-projeto li .item-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .resumo-projeto li .item-info img {
+                 width: 32px;
+                height: 32px;
+                object-fit: cover;
+                border-radius: 4px;
+                flex-shrink: 0;
+            }
+            .resumo-projeto li > div {
+                display: flex;
+                flex-direction: column;
+            }
+            .resumo-projeto li:nth-child(even) {
+                background-color: #f9f7f4;
+            }
+            .resumo-projeto .dimensoes {
+                font-size: 0.8rem;
+                color: var(--cor-texto-claro);
+                margin-left: 10px;
+            }
+            .resumo-detalhes-cores {
+                font-size: 0.8rem;
+                color: var(--cor-texto-claro);
+                margin-left: 24px;
+                margin-top: 4px;
+                line-height: 1.4;
+            }
+            .table-responsive {
+                overflow-x: auto;
+            }
+            th,
+            td {
+                border-bottom: 1px solid var(--cor-borda);
+                padding: 12px 15px;
+                text-align: left;
+            }
+            td input.editable-input {
+                width: 60px;
+                padding: 4px 6px;
+                font-size: 0.9rem;
+                border-radius: 4px;
+                border: 1px solid var(--cor-borda);
+                text-align: center;
+            }
+            tbody tr:nth-child(even) {
+                background-color: #f9f7f4;
+            }
+            #orcamento-final p {
+                margin-bottom: 8px;
+                font-size: 0.95rem;
+            }
+            #toast-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1055;
+            }
+            .toast {
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+                margin-bottom: 10px;
+            }
+            .toast.success {
+                background-color: var(--cor-sucesso);
+            }
+            .toast.error {
+                background-color: var(--cor-perigo);
+            }
+            .toast.warning {
+                background-color: var(--cor-aviso);
+                color: var(--cor-principal);
+            }
+            .toast.show {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            .botoes-export button,
+            .botoes-export a {
+                text-decoration: none;
+                color: white;
+            }
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 1050;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 40px 20px;
+                overflow-y: auto;
+            }
+            .modal-overlay.active {
+                display: flex;
+            }
+            .modal-content {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                width: 100%;
+                max-width: 1200px;
+                position: relative;
+            }
+             .modal-overlay.align-top .modal-content {
+                margin-top: 0;
+            }
+             .modal-overlay.align-top {
+                align-items: flex-start;
+            }
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid var(--cor-borda);
+                padding-bottom: 15px;
+                margin-bottom: 20px;
+            }
+            .modal-header .filtro-modal {
+                padding: 8px 12px;
+                border: 1px solid var(--cor-borda);
+                border-radius: 8px;
+                font-size: 0.9rem;
+                margin-left: 20px;
+                width: 250px;
+            }
+            .modal-close {
+                font-size: 2rem;
+                font-weight: bold;
+                color: #aaa;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0 10px;
+                line-height: 1;
+            }
+            .modal-footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid var(--cor-borda);
+                display: flex;
+                justify-content: flex-end;
+                gap: 15px;
+            }
+            .item-preview {
+                width: 100%;
+                height: 100px;
+                border: 2px dashed var(--cor-borda);
+                border-radius: 8px;
+                object-fit: cover;
+                background-color: #f9fafb;
+                margin-top: 5px;
+                cursor: pointer;
+            }
+            .seletor-com-preview {
+                display: flex;
+                gap: 20px;
+                align-items: flex-end;
+                margin-top: 10px;
+                flex-wrap: wrap;
+            }
+            #imagemModuloPreviewProjeto {
+                width: 80px;
+                height: 80px;
+                border: 1px solid var(--cor-borda);
+                border-radius: 8px;
+                object-fit: cover;
+                background-color: #f9fafb;
+                margin-top: 5px;
+            }
+            .lista-catalogo-completo {
+                list-style-type: none;
+                padding: 0;
+                margin-top: 10px;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            .lista-catalogo-completo li {
+                padding: 8px 12px;
+                border-bottom: 1px solid var(--cor-borda);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .lista-catalogo-completo li:nth-child(even) {
+                background-color: #f9fafb;
+            }
+            .lista-catalogo-completo .preco {
+                font-weight: 500;
+                color: var(--cor-texto-claro);
+                font-size: 0.9rem;
+            }
+             /* --- Estilos do Dropdown Customizado --- */
+            .custom-select-container {
+                position: relative;
+                width: 100%;
+            }
+            .custom-select-trigger {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 12px;
+                border: 1px solid var(--cor-borda);
+                border-radius: 6px;
+                font-size: 1rem;
+                background-color: #f9f7f4;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .custom-select-trigger:hover, .custom-select-container.active .custom-select-trigger {
+                border-color: var(--cor-secundaria);
+                background-color: white;
+                box-shadow: 0 0 0 3px rgba(184, 139, 74, 0.3);
+            }
+            .custom-select-trigger .selected-text {
+                flex-grow: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .custom-select-trigger .arrow {
+                border: solid var(--cor-texto-claro);
+                border-width: 0 2px 2px 0;
+                display: inline-block;
+                padding: 3px;
+                transform: rotate(45deg);
+                margin-left: 10px;
+            }
+            .custom-select-options {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: white;
+                border: 1px solid var(--cor-borda);
+                border-radius: 6px;
+                margin-top: 4px;
+                max-height: 250px;
+                overflow-y: auto;
+                z-index: 1000;
+                box-shadow: var(--sombra);
+                list-style-type: none;
+                padding: 0;
+            }
+            .custom-select-container.active .custom-select-options {
+                display: block;
+            }
+            .custom-select-options li {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 12px;
+                cursor: pointer;
+                border-bottom: 1px solid var(--cor-borda);
+            }
+            .custom-select-options li:last-child {
+                border-bottom: none;
+            }
+            .custom-select-options li:hover {
+                background-color: var(--cor-fundo);
+            }
+            .custom-select-options li img {
+                width: 32px;
+                height: 32px;
+                object-fit: cover;
+                border-radius: 4px;
+                flex-shrink: 0;
+            }
+            .custom-select-options .optgroup-header {
+                font-weight: bold;
+                color: var(--cor-texto-claro);
+                background-color: #f9f7f4;
+                padding: 8px 12px;
+                cursor: default;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+            }
+            @media (max-width: 1200px) {
+                .peca-item {
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                }
+            }
+            @media (max-width: 768px) {
+                .botoes-acao {
+                    gap: 10px;
+                }
+                .botoes-acao button,
+                .botoes-acao .btn,
+                .botoes-acao select {
+                    width: 100%;
+                    justify-content: center;
+                }
+                .peca-item {
+                    grid-template-columns: 1fr;
+                }
+                .peca-item .form-group {
+                    margin-bottom: 10px;
+                }
+                .modal-header .filtro-modal {
+                    width: 100%;
+                    margin-left: 0;
+                    margin-top: 10px;
+                    order: 3;
+                }
+                .modal-header {
+                    flex-wrap: wrap;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="toast-container"></div>
+        <header>
+            <h1>Marcenaria PRO</h1>
+            <p>Sistema de Listagem e Orçamento Automático</p>
+        </header>
+
+        <main>
+            <div class="botoes-acao">
+                <button id="btnAbrirModalModulo" class="btn-primary">Criar Novo Módulo</button>
+                <button id="btnAbrirModalGerenciarModulos" class="btn-warning">Gerenciar Módulos Salvos</button>
+                <button id="btnAbrirModalCatalogo" class="btn-secondary">Gerenciar Catálogos</button>
+                <button id="btnAbrirModalVisualizarCatalogo" class="btn-secondary">Visualizar Catálogo Completo</button>
+                <button id="btnAbrirModalConfig" class="btn-secondary">⚙️ Configurações de Cálculo</button>
+            </div>
+
+            <section class="card data-management-card" style="border-top: 4px solid var(--cor-aviso);">
+                <h2>Gerenciamento de Dados (Backup)</h2>
+                <p>Use 'Exportar' para criar um arquivo de backup (.json). Use 'Importar' para carregar os dados de um backup, substituindo os dados atuais no navegador.</p>
+                <div class="botoes-acao">
+                    <button id="btnExportarDados" class="btn-success">Exportar (Salvar Backup)</button>
+                    <label id="labelImportarDados" class="btn btn-primary" style="cursor: pointer;">Importar (Carregar Backup)</label>
+                    <input type="file" id="importarDadosInput" accept=".json, .txt" style="display: none;" />
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><span class="step-number">1</span>Montagem do Projeto</h2>
+                <p>Defina as dimensões e cores do projeto, depois adicione os módulos e ferragens extras que desejar.</p>
+                <h3>Dados Gerais</h3>
+                <div class="form-grid">
+                    <input type="text" id="nomeCliente" placeholder="Nome do Cliente (para o PDF)" />
+                    <input type="text" id="nomeAmbiente" placeholder="Ambiente (Ex: Cozinha, Quarto Casal)" />
+                    <div class="form-group">
+                        <label>Cor Material Interno</label>
+                        <select id="projCorInterna"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cor Material Externo</label>
+                        <select id="projCorExterna"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cor da Borda Interna (Projeto)</label>
+                        <select id="projCorBordaInterna"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cor da Borda Externa (Projeto)</label>
+                        <select id="projCorBordaExterna"></select>
+                    </div>
+                </div>
+                
+                <hr style="margin: 25px 0;" />
+                <h3>Adicionar Módulos e Peças</h3>
+                <div class="form-grid" style="grid-template-columns: 1fr 200px; align-items: flex-end;">
+                    <div class="form-group" style="margin: 0;">
+                        <label for="tipoModuloProjeto" id="labelTipoModuloProjeto">Tipo de Módulo a Adicionar</label>
+                        <select id="tipoModuloProjeto">
+                            <option value="reto">Módulo Reto</option>
+                            <option value="canto">Módulo de Canto (em L)</option>
+                        </select>
+                    </div>
+                    <div></div>
+                </div>
+                <div id="dimensoes-container-reto">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="projAltura" id="labelProjAltura">Altura Final (A) em mm</label>
+                            <input type="number" id="projAltura" placeholder="Altura Final (A) em mm" />
+                        </div>
+                         <div class="form-group">
+                            <label for="projLargura" id="labelProjLargura">Largura Final (L) em mm</label>
+                            <input type="number" id="projLargura" placeholder="Largura Final (L) em mm" />
+                        </div>
+                         <div class="form-group">
+                            <label for="projProfundidade" id="labelProjProfundidade">Profundidade Final (P) em mm</label>
+                            <input type="number" id="projProfundidade" placeholder="Profundidade Final (P) em mm" />
+                        </div>
+                    </div>
+                </div>
+                <div id="dimensoes-container-canto" style="display: none;">
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                        <input type="number" id="projAlturaCanto" placeholder="Altura (A) em mm" />
+                        <input type="number" id="projLadoA" placeholder="Lado A (mm)" />
+                        <input type="number" id="projLadoB" placeholder="Lado B (mm)" />
+                        <input type="number" id="projProfA" placeholder="Profundidade A (mm)" />
+                        <input type="number" id="projProfB" placeholder="Profundidade B (mm)" />
+                    </div>
+                </div>
+
+                <div class="seletor-com-preview">
+                    <div style="flex-grow: 1;">
+                        <div class="form-grid" style="margin-top: 0; gap: 15px; grid-template-columns: 2fr 1.5fr;">
+                           <div class="form-group" style="margin-bottom: 0;">
+                                <label for="catalogo-modulos">Escolha um Módulo ou Peça</label>
+                                <div class="custom-select-container" id="catalogo-modulos-container">
+                                    <div class="custom-select-trigger" id="catalogo-modulos-trigger" data-value="">
+                                        <span class="selected-text">-- Selecione --</span>
+                                        <span class="arrow"></span>
+                                    </div>
+                                    <ul class="custom-select-options" id="catalogo-modulos-options"></ul>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="moduloTipoPuxador">Tipo de Puxador</label>
+                                <select id="moduloTipoPuxador">
+                                    <option value="externo">Puxador Externo (Padrão)</option>
+                                    <option value="cava_horizontal">Puxador Cava (Horizontal)</option>
+                                    <option value="cava_vertical">Puxador Cava (Vertical)</option>
+                                    <option value="perfil_horizontal">Puxador Perfil de Alumínio (Horizontal)</option>
+                                    <option value="perfil_vertical">Puxador Perfil de Alumínio (Vertical)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="botoes-acao" style="margin-top: 15px;">
+                            <button type="button" id="btnAdicionarModulo" class="btn-primary" style="width: 100%;">Adicionar ao Projeto</button>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <label>Preview</label>
+                        <img id="imagemModuloPreviewProjeto" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Preview do módulo selecionado" />
+                    </div>
+                </div>
+
+                <h3>Ferragens Extras</h3>
+                <div class="botoes-acao">
+                    <select id="ferragensExtrasSelect">
+                        <option value="">-- Escolha do catálogo --</option>
+                    </select>
+                    <input type="number" id="ferragemExtraValor" placeholder="Qtd ou Medida" /><button type="button" id="btnAdicionarFerragemExtra" class="btn-primary">Adicionar Ferragem Extra</button>
+                </div>
+                <div id="resumo-projeto-container" style="display: none;">
+                    <h3>Resumo do Projeto Atual</h3>
+                    <div class="resumo-projeto"><ul id="lista-resumo-projeto"></ul></div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><span class="step-number">2</span>Gerar Listagem e Orçamento</h2>
+                <button type="button" id="btnGerarListagem" class="btn-success" style="width: 100%; padding: 15px; font-size: 1.2rem;">Gerar Listagem Completa</button>
+            </section>
+
+            <section id="output-section" class="card" style="display: none;">
+                <h2>Resultado Final</h2>
+                <h3>Listagem de Peças para Corte</h3>
+                <div class="table-responsive">
+                    <table id="lista-pecas">
+                        <thead>
+                            <tr>
+                                <th>Nome Peça</th>
+                                <th>Qtd</th>
+                                <th>Altura</th>
+                                <th>Largura</th>
+                                <th>Espessura</th>
+                                <th>Material</th>
+                                <th>Bordas</th>
+                                <th>Cor Borda</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <h3>Lista de Ferragens Gerais e Extras</h3>
+                <div class="table-responsive">
+                    <table id="lista-ferragens">
+                        <thead>
+                            <tr>
+                                <th>Nome Ferragem</th>
+                                <th>Qtd/Medida</th>
+                                <th>Custo Unit/M</th>
+                                <th>Custo Total</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <h3>Lista de Compras</h3>
+                <div class="table-responsive">
+                    <table id="lista-materiais-compra">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantidade</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div id="orcamento-final">
+                    <h3>Resumo do Orçamento</h3>
+                    <p><span>Custo Total de Material:</span> <b id="orcamento-custo-total-material"></b></p>
+                    <p><span>Lucro sobre Material:</span> <b id="orcamento-lucro-material"></b></p>
+                    <hr style="margin: 15px 0;" />
+                    <h3 id="orcamento-total"></h3>
+                </div>
+
+                <div class="botoes-export botoes-acao">
+                    <button id="btnExportarProducao" class="btn-secondary">Exportar PDF (Produção)</button>
+                    <button id="btnExportarExcel" class="btn-secondary">Exportar Excel (Plano de Corte)</button>
+                    <button id="btnGerarPreContrato" class="btn-success">Gerar PDF (Enviar p/ Cliente)</button>
+                    <button id="btnExportarCortcloud" class="btn-warning" style="background-color: #d97706;">Exportar para Cortcloud</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- MODAL DE ESCOLHA DE CORREDIÇA -->
+        <div id="modal-escolher-corredica" class="modal-overlay">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2 id="modal-corredica-titulo">Escolha o Tipo de Corrediça</h2>
+                    <button class="modal-close" data-modal-id="modal-escolher-corredica">×</button>
+                </div>
+                <div class="modal-body">
+                    <p>Este módulo contém gavetas. Por favor, selecione o padrão de corrediça a ser utilizado para o cálculo de medidas e custos.</p>
+                    <div class="botoes-acao" style="margin-top: 25px; justify-content: center; gap: 20px;">
+                        <button id="btnEscolherTelescopica" class="btn-primary" style="padding: 15px 25px; font-size: 1.1rem;">Telescópica</button>
+                        <button id="btnEscolherInvisivel" class="btn-secondary" style="padding: 15px 25px; font-size: 1.1rem;">Invisível</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-danger modal-close" data-modal-id="modal-escolher-corredica">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MODAL DE ESCOLHA DE DOBRADIÇA -->
+        <div id="modal-escolher-dobradica" class="modal-overlay">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2>Escolha o Tipo de Dobradiça</h2>
+                    <button class="modal-close" data-modal-id="modal-escolher-dobradica">×</button>
+                </div>
+                <div class="modal-body">
+                    <p>Este módulo contém portas. Por favor, selecione o padrão de dobradiça a ser utilizado.</p>
+                    <div class="botoes-acao" style="margin-top: 25px; justify-content: center; gap: 20px;">
+                        <button id="btnEscolherReta" class="btn-primary" style="padding: 15px 25px; font-size: 1.1rem;">Reta</button>
+                        <button id="btnEscolherCurva" class="btn-secondary" style="padding: 15px 25px; font-size: 1.1rem;">Curva</button>
+                    </div>
+                </div>
+                 <div class="modal-footer">
+                    <button class="btn-danger modal-close" data-modal-id="modal-escolher-dobradica">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CRIAÇÃO/EDIÇÃO DE MÓDULOS -->
+        <div id="modal-modulo" class="modal-overlay align-top">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-modulo-titulo">Criar Novo Módulo</h2>
+                    <button class="modal-close" data-modal-id="modal-modulo">×</button>
+                </div>
+                <div class="modal-body">
+                    <p id="modal-modulo-descricao">Crie ou edite modelos completos, definindo suas peças, fórmulas e as ferragens necessárias.</p>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr 200px; align-items: flex-start;">
+                        <div style="grid-column: 1 / 3;">
+                            <div class="form-grid" style="margin-top: 0; grid-template-columns: 1fr 1fr 1fr;">
+                                <div class="form-group">
+                                    <label>Categoria</label>
+                                    <select id="categoriaModuloSelect"></select>
+                                    <input type="text" id="novaCategoriaInput" placeholder="Nova Categoria" style="display: none; margin-top: 10px;" />
+                                </div>
+                                <div class="form-group"><label>Nome do Módulo</label><input type="text" id="nomeModulo" placeholder="Ex: Balcão 2 Portas" /></div>
+                                <div class="form-group">
+                                    <label>Tipo de Módulo (para as fórmulas)</label>
+                                    <select id="moduloTipo">
+                                        <option value="reto">Módulo Reto (Usa A, L, P)</option>
+                                        <option value="canto">Módulo de Canto L (Usa LadoA/B, ProfA/B)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Cor Borda Interna Padrão</label>
+                                    <select id="moduloCorBordaInterna"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Cor Borda Externa Padrão</label>
+                                    <select id="moduloCorBordaExterna"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Imagem do Módulo (Opcional)</label>
+                            <img id="imagemModuloPreview" class="item-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Pré-visualização da imagem" />
+                            <input type="file" class="imagem-input" style="display: none;" />
+                        </div>
+                    </div>
+
+                    <h3>Peças do Módulo</h3>
+                    <div id="pecas-container"></div>
+                    <div class="botoes-acao">
+                        <button type="button" id="btnAdicionarPeca" class="btn-primary">Adicionar Peça</button>
+                        <select id="pecas-predefinidas">
+                            <option value="">-- Ou adicione uma peça pré-definida --</option>
+                        </select>
+                        <button type="button" id="btnAbrirModalRipado" class="btn-secondary">Gerar Painel Ripado</button>
+                    </div>
+
+                    <h3>Ferragens Gerais do Módulo</h3>
+                    <small class="formula-helper" style="margin-top: 5px;">Adicione aqui ferragens genéricas. O sistema substituirá pelo item padrão definido no projeto (Ex: Dobradiça Reta -> Dobradiça Reta Slow). Use nomes que contenham: 'dobradiça reta', 'dobradiça curva', 'pistão'.</small>
+                    <div class="botoes-acao">
+                        <select id="moduloFerragemSelect">
+                            <option value="">-- Escolha uma ferragem do catálogo --</option>
+                        </select>
+                        <input type="text" id="moduloFerragemValor" placeholder="Qtd ou Medida" /><button type="button" id="btnAdicionarFerragemModulo" class="btn-primary">Adicionar Ferragem</button>
+                    </div>
+                    <div id="ferragens-modulo-container" class="catalogo-gerenciador"></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn-secondary modal-close" data-modal-id="modal-modulo">Cancelar</button><button type="button" id="btnSalvarModulo" class="btn-success">Salvar Módulo</button></div>
+            </div>
+        </div>
+
+        <!-- MODAL GERADOR DE PAINEL RIPADO -->
+        <div id="modal-ripado" class="modal-overlay">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2>Gerador de Painel Ripado</h2>
+                    <button class="modal-close" data-modal-id="modal-ripado">×</button>
+                </div>
+                <div class="modal-body">
+                    <p>Informe as medidas das ripas para gerar as peças automaticamente.</p>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group"><label>Largura de cada Ripa (mm)</label><input type="number" id="ripadoLarguraRipa" value="50" /></div>
+                        <div class="form-group"><label>Espaçamento entre Ripas (mm)</label><input type="number" id="ripadoEspacamento" value="20" /></div>
+                    </div>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label style="flex-direction: row; align-items: center; gap: 10px;"><input type="checkbox" id="ripadoIncluirFundo" checked /> Incluir Painel de Fundo?</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary modal-close" data-modal-id="modal-ripado">Cancelar</button>
+                    <button id="btnGerarRipado" class="btn-success">Gerar e Adicionar Peças</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE GERENCIAMENTO DE MÓDULOS -->
+        <div id="modal-gerenciar-modulos" class="modal-overlay align-top">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Gerenciar Módulos Salvos</h2>
+                    <input type="search" id="filtroModulos" class="filtro-modal" placeholder="Filtrar por nome ou categoria..." />
+                    <button class="modal-close" data-modal-id="modal-gerenciar-modulos">×</button>
+                </div>
+                <div class="modal-body"><div id="lista-modulos-salvos" class="catalogo-gerenciador"></div></div>
+                <div class="modal-footer"><button class="btn-secondary modal-close" data-modal-id="modal-gerenciar-modulos">Fechar</button></div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CATÁLOGOS (PARA GERENCIAR) -->
+        <div id="modal-catalogo" class="modal-overlay align-top">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Gerenciar Catálogos</h2>
+                    <input type="search" id="filtroCatalogo" class="filtro-modal" placeholder="Filtrar itens do catálogo..." />
+                    <button class="modal-close" data-modal-id="modal-catalogo">×</button>
+                </div>
+                <div class="modal-body">
+                    <h3>Catálogo de Materiais</h3>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div>
+                            <h4>Cores de MDF</h4>
+                            <div id="listaCoresMDF" class="catalogo-gerenciador"></div>
+                        </div>
+                        <div>
+                            <h4>Cores de Fita de Borda</h4>
+                            <div id="listaCoresBorda" class="catalogo-gerenciador"></div>
+                        </div>
+                    </div>
+
+                    <fieldset style="border: 1px solid var(--cor-borda); border-radius: 8px; padding: 15px; margin-top: 20px;">
+                        <legend id="material-form-titulo" style="font-weight: 500; padding: 0 10px;">Adicionar Novo Material</legend>
+                        <div class="form-grid" style="grid-template-columns: 1fr 2fr 150px; align-items: flex-end;">
+                            <div class="form-group">
+                                <label>Tipo de Material</label>
+                                <select id="novoMaterialTipo">
+                                    <option value="mdf">MDF</option>
+                                    <option value="borda">Fita de Borda</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Nome</label><input type="text" id="novoMaterialNome" placeholder="Ex: Branco Diamante" /></div>
+                            <div class="form-group">
+                                <label>Imagem</label><img id="novoMaterialPreview" class="item-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" /><input type="file" class="imagem-input" style="display: none;" />
+                            </div>
+                        </div>
+                        <div id="campos-preco-mdf" class="form-grid" style="margin-top: 5px; grid-template-columns: 1fr 1fr;">
+                            <div class="form-group"><label>Preço da Chapa (R$)</label><input type="number" id="novoMaterialPrecoChapa" placeholder="250.00" step="0.01" /></div>
+                            <div class="form-group"><label>Preço Calculado (R$/m²)</label><input type="number" id="novoMaterialPrecoCalculado" readonly /></div>
+                        </div>
+                        <div id="campos-preco-borda" class="form-grid" style="margin-top: 5px; grid-template-columns: 1fr 1fr 1fr; display: none;">
+                            <div class="form-group">
+                                <label>Preço do Rolo (R$) <small>(Opcional)</small></label><input type="number" id="novoMaterialPrecoRoloBorda" placeholder="50.00" step="0.01" />
+                            </div>
+                            <div class="form-group">
+                                <label>Metragem do Rolo (m) <small>(Opcional)</small></label><input type="number" id="novoMaterialMetragemRoloBorda" placeholder="20" step="1" />
+                            </div>
+                            <div class="form-group"><label>Preço Final por Metro (R$/m)</label><input type="number" id="novoMaterialPrecoFinalBorda" placeholder="2.50" step="0.01" /></div>
+                        </div>
+
+                        <div class="botoes-acao" style="margin-top: 10px; justify-content: flex-start;">
+                            <button id="btnAddMaterial" class="btn-primary">Adicionar ao Catálogo</button>
+                            <button id="btnCancelarEdicaoMaterial" class="btn-secondary" style="display: none;">Cancelar Edição</button>
+                        </div>
+                    </fieldset>
+
+                    <hr style="margin: 25px 0;" />
+
+                    <h3>Catálogo de Perfis de Puxador</h3>
+                    <div id="listaPerfisPuxador" class="catalogo-gerenciador"></div>
+                    <fieldset style="border: 1px solid var(--cor-borda); border-radius: 8px; padding: 15px; margin-top: 20px;">
+                        <legend id="perfil-form-titulo" style="font-weight: 500; padding: 0 10px;">Adicionar Novo Perfil</legend>
+                        <div class="form-grid" style="grid-template-columns: 1fr 150px; align-items: flex-end;">
+                            <div class="form-group"><label>Nome do Perfil</label><input type="text" id="novoPerfilNome" placeholder="Ex: Perfil Gola Alumínio Bronze" /></div>
+                            <div class="form-group">
+                                <label>Imagem</label><img id="novoPerfilPreview" class="item-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" /><input type="file" class="imagem-input" style="display: none;" />
+                            </div>
+                        </div>
+                        <div class="form-grid" style="margin-top: 5px; grid-template-columns: 1fr 1fr 1fr;">
+                            <div class="form-group">
+                                <label>Preço da Barra (R$)</label>
+                                <input type="number" id="novoPerfilPrecoBarra" placeholder="90.00" step="0.01" />
+                            </div>
+                            <div class="form-group">
+                                <label>Metragem da Barra (m)</label>
+                                <input type="number" id="novoPerfilMetragemBarra" placeholder="3" step="0.01" />
+                            </div>
+                            <div class="form-group">
+                                <label>Preço Calculado (R$/m)</label>
+                                <input type="number" id="novoPerfilPrecoMetro" readonly />
+                            </div>
+                        </div>
+                        <div class="botoes-acao" style="margin-top: 10px; justify-content: flex-start;">
+                            <button id="btnSalvarPerfil" class="btn-primary">Adicionar</button>
+                            <button id="btnCancelarEdicaoPerfil" class="btn-secondary" style="display: none;">Cancelar</button>
+                        </div>
+                    </fieldset>
+
+                    <hr style="margin: 25px 0;" />
+
+                    <h3>Catálogo de Ferragens (Geral)</h3>
+                    <div id="listaFerragensCatalogo" class="catalogo-gerenciador"></div>
+                    <fieldset style="border: 1px solid var(--cor-borda); border-radius: 8px; padding: 15px; margin-top: 20px;">
+                        <legend id="ferragem-form-titulo" style="font-weight: 500; padding: 0 10px;">Adicionar Nova Ferragem</legend>
+                        <div class="form-grid" style="grid-template-columns: 1fr 150px; align-items: flex-end;">
+                            <div class="form-group"><label>Nome</label><input type="text" id="novaFerragemNome" placeholder="Ex: Dobradiça Reta 35mm" /></div>
+                            <div class="form-group">
+                                <label>Imagem</label><img id="novaFerragemPreview" class="item-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" /><input type="file" class="imagem-input" style="display: none;" />
+                            </div>
+                        </div>
+                        <div class="form-grid" style="margin-top: 5px; grid-template-columns: 1fr 1fr 1fr;">
+                            <div class="form-group">
+                                <label>Tipo de Ferragem</label>
+                                <select id="novaFerragemTipo">
+                                    <option value="geral">Geral</option>
+                                    <option value="corredica">Corrediça</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Unidade</label>
+                                <select id="novaFerragemUnidade">
+                                    <option value="UN">Unidade (UN)</option>
+                                    <option value="M">Metro (M)</option>
+                                    <option value="PAR">Par (PAR)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label id="labelPrecoFinalFerragem">Preço (R$)</label>
+                                <input type="number" id="novaFerragemPreco" placeholder="4.50" step="0.01" />
+                            </div>
+                        </div>
+                        <div id="campos-preco-barra-ferragem" style="display: none;">
+                            <div class="form-grid" style="margin-top: 5px; grid-template-columns: 1fr 1fr;">
+                                <div class="form-group">
+                                    <label>Preço da Barra/Rolo (R$) <small>(Opcional)</small></label>
+                                    <input type="number" id="novaFerragemPrecoBarra" placeholder="90.00" step="0.01" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Metragem da Barra/Rolo (m) <small>(Opcional)</small></label>
+                                    <input type="number" id="novaFerragemMetragemBarra" placeholder="3" step="0.01" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="botoes-acao" style="margin-top: 10px; justify-content: flex-start;">
+                            <button id="btnSalvarFerragem" class="btn-primary">Adicionar</button>
+                            <button id="btnCancelarEdicaoFerragem" class="btn-secondary" style="display: none;">Cancelar</button>
+                        </div>
+                    </fieldset>
+
+                    <hr style="margin: 25px 0;" />
+                    <h3>Catálogo de Peças Padrão</h3>
+                    <div id="listaPecasPredefinidas" class="catalogo-gerenciador"></div>
+                    <fieldset id="nova-peca-form-wrapper" style="border: 1px solid var(--cor-borda); border-radius: 8px; padding: 15px; margin-top: 20px;">
+                        <legend id="peca-form-titulo" style="font-weight: 500; padding: 0 10px;">Nova Peça Padrão</legend>
+                        <div class="form-grid">
+                            <div class="form-group"><label>Nome</label><input type="text" id="novaPecaNome" placeholder="Ex: Divisória Vertical" /></div>
+                            <div class="form-group"><label>Qtd (ou Fórmula)</label><input type="text" id="novaPecaQtd" value="1" /></div>
+                            <div class="form-group"><label>Fórmula Altura</label><input type="text" id="novaPecaAltura" placeholder="Ex: A - 30" /></div>
+                            <div class="form-group"><label>Fórmula Largura</label><input type="text" id="novaPecaLargura" placeholder="Ex: MedidaCorredica - 10" /></div>
+                            <div class="form-group">
+                                <label>Tipo de Material</label>
+                                <select id="novaPecaTipoMaterial">
+                                    <option value="interna">Interno</option>
+                                    <option value="externa">Externo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo de Borda</label>
+                                <select id="novaPecaTipoBorda">
+                                    <option value="interna">Interna</option>
+                                    <option value="externa">Externa</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="botoes-acao" style="margin-top: 10px; justify-content: flex-start;">
+                            <button id="btnSalvarPecaCatalogo" class="btn-primary">Adicionar Peça ao Catálogo</button>
+                            <button id="btnCancelarEdicaoPeca" class="btn-secondary" style="display: none;">Cancelar Edição</button>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="modal-footer"><button class="btn-secondary modal-close" data-modal-id="modal-catalogo">Fechar</button></div>
+            </div>
+        </div>
+
+        <!-- MODAL DE VISUALIZAÇÃO DE CATÁLOGO COMPLETO -->
+        <div id="modal-visualizar-catalogo" class="modal-overlay align-top">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Catálogo Completo de Materiais e Peças</h2>
+                    <button class="modal-close" data-modal-id="modal-visualizar-catalogo">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 40px;">
+                        <div>
+                            <h3>Catálogo de Materiais (MDF)</h3>
+                            <div id="lista-completa-mdf"></div>
+                        </div>
+                        <div>
+                            <h3>Catálogo de Fitas de Borda</h3>
+                            <div id="lista-completa-borda"></div>
+                        </div>
+                         <div>
+                            <h3>Catálogo de Perfis de Puxador</h3>
+                            <div id="lista-completa-perfis"></div>
+                        </div>
+                        <div>
+                            <h3>Catálogo de Ferragens</h3>
+                            <div id="lista-completa-ferragens"></div>
+                        </div>
+                        <div>
+                            <h3>Catálogo de Peças Padrão</h3>
+                            <div id="lista-completa-pecas"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button class="btn-secondary modal-close" data-modal-id="modal-visualizar-catalogo">Fechar</button></div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CONFIGURAÇÕES -->
+        <div id="modal-config" class="modal-overlay align-top">
+            <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h2>Configurações Gerais de Cálculo</h2>
+                    <button class="modal-close" data-modal-id="modal-config">×</button>
+                </div>
+                <div class="modal-body">
+                    <p>Ajuste os valores padrão para espessuras, descontos e dimensões. Alterar as dimensões da chapa irá recalcular os preços por m² de todos os MDFs no seu catálogo.</p>
+                    <h3>Espessuras (mm)</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Interna</label><input type="number" id="espInterna" /></div>
+                        <div class="form-group"><label>Externa</label><input type="number" id="espExterna" /></div>
+                        <div class="form-group"><label>Fundo</label><input type="number" id="espFundo" /></div>
+                    </div>
+                    <h3>Descontos e Folgas Gerais (mm)</h3>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group"><label>Folga Altura Portas</label><input type="number" id="folgaPortaAltura" /></div>
+                        <div class="form-group"><label>Folga Largura Portas</label><input type="number" id="folgaPortaLargura" /></div>
+                        <div class="form-group"><label>Recuo Fundo do Armário</label><input type="number" id="descFundoArmario" /></div>
+                        <div class="form-group"><label>Folga Corrediça (Frente)</label><input type="number" id="folgaCorredicaFrente" /></div>
+                        <div class="form-group"><label>Folga Corrediça (Fundo)</label><input type="number" id="folgaCorredicaFundo" /></div>
+                        <div class="form-group"><label>Acréscimo para Puxador Cava</label><input type="number" id="acrescimoPuxadorCava" /></div>
+                        <div class="form-group"><label>Desconto Altura para Perfil</label><input type="number" id="descontoPerfilAltura" /></div>
+                        <div class="form-group"><label>Desconto Largura para Perfil</label><input type="number" id="descontoPerfilLargura" /></div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-top: 20px;">Folgas de Gaveta (mm)</h3>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                         <div class="form-group">
+                            <label>Folga p/ Corrediça Telescópica (Lateral)</label>
+                            <input type="number" id="folgaGavetaTelescopica" />
+                        </div>
+                        <div class="form-group">
+                            <label>Folga p/ Corrediça Invisível (Lateral)</label>
+                            <input type="number" id="folgaGavetaInvisivel" />
+                        </div>
+                        <div class="form-group">
+                            <label>Desconto Fundo Gaveta (Telescópica)</label>
+                            <input type="number" id="descFundoGavetaTelescopica" />
+                             <small class="formula-helper">Desconto na altura do fundo da gaveta.</small>
+                        </div>
+                         <div class="form-group">
+                            <label>Desconto Fundo Gaveta (Invisível)</label>
+                            <input type="number" id="descFundoGavetaInvisivel" />
+                             <small class="formula-helper">Desconto na altura do fundo da gaveta.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Recuo Fundo Gaveta (Invisível)</label>
+                            <input type="number" id="recuoFrenteGavetaInvisivel" />
+                             <small class="formula-helper">Recuo/dente para encaixe da corrediça.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Desconto Altura Base Gav (Telescópica)</label>
+                            <input type="number" id="descAlturaBaseGavTelescopica" />
+                        </div>
+                        <div class="form-group">
+                            <label>Desconto Altura Lateral Gav (Telescópica)</label>
+                            <input type="number" id="descAlturaLateralGavTelescopica" />
+                        </div>
+                        <div class="form-group">
+                            <label>Desconto Altura Base Gav (Invisível)</label>
+                            <input type="number" id="descAlturaBaseGavInvisivel" />
+                        </div>
+                        <div class="form-group">
+                            <label>Desconto Altura Lateral Gav (Invisível)</label>
+                            <input type="number" id="descAlturaLateralGavInvisivel" />
+                        </div>
+                         <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Medidas Padrão de Corrediças (mm)</label>
+                            <input type="text" id="medidasCorredicas" placeholder="250,300,350,400,450..." />
+                             <small class="formula-helper">Separadas por vírgula.</small>
+                        </div>
+                    </div>
+
+
+                    <h3>Ferragens Padrão (para cálculo automático)</h3>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div class="form-group">
+                            <label>Puxador Externo Padrão</label>
+                            <select id="puxadorExternoPadrao"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Dobradiça Padrão (Reta)</label>
+                            <select id="dobradicaRetaPadrao"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Dobradiça Padrão (Curva)</label>
+                            <select id="dobradicaCurvaPadrao"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Corrediça Telescópica Padrão</label>
+                            <select id="corredicaTelescopicaPadrao"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Corrediça Invisível Padrão</label>
+                            <select id="corredicaInvisivelPadrao"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Pistão a Gás Padrão</label>
+                            <select id="pistaoGasPadrao"></select>
+                        </div>
+                    </div>
+
+
+                    <h3>Margens de Lucro e Custos</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Margem de Lucro sobre Materiais (%)</label><input type="number" id="margemLucroMaterial" step="1" /></div>
+                        <div class="form-group"><label>Custo Fita Borda (R$/m) - Padrão</label><input type="number" id="custoBorda" step="0.01" /></div>
+                    </div>
+
+                    <h3>Dimensões da Chapa (mm)</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Altura da Chapa</label><input type="number" id="chapaAltura" /></div>
+                        <div class="form-group"><label>Largura da Chapa</label><input type="number" id="chapaLargura" /></div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button id="btnSalvarConfig" class="btn-success modal-close" data-modal-id="modal-config">Salvar e Fechar</button></div>
+            </div>
+        </div>
+
+        <!-- TEMPLATES -->
+        <template id="template-peca">
+            <div class="peca-item-wrapper" style="border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div class="peca-item">
+                    <div class="form-group"><label>Nome da Peça</label><input type="text" class="peca-nome" placeholder="Ex: Prateleira" /></div>
+                    <div class="form-group"><label>Qtd (Fórmula)</label><input type="text" class="peca-qtd" value="1" placeholder="Ex: L / 70" /></div>
+                    <div class="form-group">
+                        <label>Fórmula Altura</label><input type="text" class="peca-altura" placeholder="Ex: A - 10" />
+                        <small class="formula-helper formula-helper-altura">Variáveis: A, L, P, LadoA, LadoB, ProfA, ProfB, MedidaCorredica, EspInterna, EspExterna, DescFundoArmario, FolgaPortaAltura, FolgaPortaLargura, FolgaCorredicaFrente, FolgaCorredicaFundo, AjustePuxadorAltura, AjustePuxadorLargura, DescontoPerfilAltura, DescontoPerfilLargura, DescAlturaBaseGav, DescAlturaLateralGav, FolgaGavetaCorredica, DescFundoGavetaCorredica, RecuoFrenteGavetaCorredica</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Fórmula Largura</label><input type="text" class="peca-largura" placeholder="Ex: L - 20" />
+                        <small class="formula-helper formula-helper-largura">Variáveis: A, L, P, LadoA, LadoB, ProfA, ProfB, MedidaCorredica, EspInterna, EspExterna, DescFundoArmario, FolgaPortaAltura, FolgaPortaLargura, FolgaCorredicaFrente, FolgaCorredicaFundo, AjustePuxadorAltura, AjustePuxadorLargura, DescontoPerfilAltura, DescontoPerfilLargura, DescAlturaBaseGav, DescAlturaLateralGav, FolgaGavetaCorredica, DescFundoGavetaCorredica, RecuoFrenteGavetaCorredica</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Material</label>
+                        <select class="peca-material-tipo">
+                            <option value="interna">Usar Material Interno</option>
+                            <option value="externa">Usar Material Externo</option>
+                            <option value="fundo">Usar Material de Fundo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Borda</label>
+                        <select class="peca-borda-tipo">
+                            <option value="interna">Interna</option>
+                            <option value="externa">Externa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Lados com Borda</label>
+                        <div class="checkbox-group" style="display: flex; gap: 8px; align-items: center; justify-content: space-around; padding-top: 5px;">
+                            <label>A1<input type="checkbox" class="peca-borda-a1" /></label><label>A2<input type="checkbox" class="peca-borda-a2" /></label><label>L1<input type="checkbox" class="peca-borda-l1" /></label>
+                            <label>L2<input type="checkbox" class="peca-borda-l2" /></label>
+                        </div>
+                    </div>
+                    <div class="form-group"><button type="button" class="btn-danger btn-remover-peca">Remover Peça</button></div>
+                </div>
+                <div class="ferragens-associadas-section" style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--cor-borda);">
+                    <h4 style="margin-top: 0;">Ferragens Associadas a esta Peça</h4>
+                    <div class="botoes-acao" style="margin-top: 5px;">
+                        <select class="peca-ferragem-select" style="flex: 2;">
+                            <option value="">-- Catálogo de Ferragens --</option>
+                        </select>
+                        <input type="text" class="peca-ferragem-qtd" placeholder="Qtd (ex: 2 ou QTD*2)" style="flex: 1;" />
+                        <button type="button" class="btn-primary btn-sm btn-add-ferragem-assoc">Adicionar</button>
+                    </div>
+                    <small class="formula-helper" style="margin-top: 5px;">Use 'A', 'L', 'QTD' (qtd da peça), 'P' (profundidade do módulo), 'LadoA', 'LadoB', 'ProfA', 'ProfB', MedidaCorredica, DescAlturaBaseGav, DescAlturaLateralGav nas fórmulas.</small>
+                    <div class="ferragens-associadas-container catalogo-gerenciador" style="max-height: 100px;"></div>
+                </div>
+            </div>
+        </template>
+
+        <template id="template-ferragem-assoc">
+            <div class="catalogo-item"><span></span><button class="btn-danger btn-sm">X</button></div>
+        </template>
+
+        <template id="template-ferragem-modulo">
+            <div class="catalogo-item"><span></span><button class="btn-danger btn-sm">X</button></div>
+        </template>
+        
+        <script id="preloaded-data" type="application/json">null</script>
+
+        <!-- SCRIPT PRINCIPAL DA APLICAÇÃO -->
+        <script>
+            function inicializarApp() {
+                // --- ESTADO DA APLICAÇÃO ---
+                let AppData = {};
+                let projetoAtual = { modulos: [], ferragensExtras: [] };
+                let editingModuleId = null;
+                let listaPecasGerada = [];
+                let listaFerragensGerada = [];
+                let orcamentoFinalData = {};
+                let imagemModuloBase64 = null;
+                let editingHardwareKey = null;
+                let editingMaterialKey = null;
+                let editingMaterialType = null;
+                let editingProfileKey = null;
+                let editingPecaKey = null;
+                let currentImage = { material: null, hardware: null, profile: null };
+                let ultimoNomeCliente = "";
+                let ultimoNomeAmbiente = "";
+                let moduloTemporario = null;
+
+                // --- FUNÇÕES UTILITÁRIAS ---
+                const getEl = (id) => document.getElementById(id);
+
+                const showToast = (message, type = "success") => {
+                    const toast = document.createElement("div");
+                    toast.className = `toast ${type}`;
+                    toast.textContent = message;
+                    getEl("toast-container").appendChild(toast);
+                    setTimeout(() => toast.classList.add("show"), 10);
+                    setTimeout(() => {
+                        toast.classList.remove("show");
+                        toast.addEventListener("transitionend", () => toast.remove());
+                    }, 4000);
+                };
+
+                const evaluateFormula = (expression) => {
+                    try {
+                        const formula = String(expression).trim();
+                        if (formula === "") return 0;
+                        const finalValue = new Function(`return ${formula}`)();
+                         if (!isFinite(finalValue) || isNaN(finalValue)) {
+                            console.warn(`Resultado inválido: '${finalValue}'. Fórmula original: "${expression}"`);
+                            return 0;
+                        }
+                        return finalValue;
+                    } catch (e) {
+                        console.error(`Erro ao avaliar a fórmula: "${expression}"`, e);
+                        return 0;
+                    }
+                };
+
+
+                const createKeyFromName = (name) =>
+                    name
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")
+                        .replace(/[^\w-]/g, "");
+
+                // --- SELETORES DE ELEMENTOS COMUNS ---
+                const pecasContainer = getEl("pecas-container");
+                const catalogoModulosTrigger = getEl("catalogo-modulos-trigger");
+                const catalogoModulosOptions = getEl("catalogo-modulos-options");
+                const catalogoModulosContainer = getEl("catalogo-modulos-container");
+                const outputSection = getEl("output-section");
+                const listaPecasTbody = getEl("lista-pecas").querySelector("tbody");
+                const listaFerragensTbody = getEl("lista-ferragens").querySelector("tbody");
+                const resumoContainer = getEl("resumo-projeto-container");
+                const listaResumo = getEl("lista-resumo-projeto");
+
+                // --- GERENCIAMENTO DE DADOS (STORAGE) ---
+                const salvarDados = () => {
+                    try {
+                        Object.keys(AppData).forEach((key) => {
+                             if(AppData[key] !== undefined){
+                                localStorage.setItem(`marcenaria_pro_${key}`, JSON.stringify(AppData[key]));
+                             }
+                        });
+                    } catch (e) {
+                        if (e.name === 'QuotaExceededError') {
+                            showToast("Erro: Limite de armazenamento do navegador excedido! Considere remover itens com imagens grandes.", "error");
+                        } else {
+                            console.error("Erro ao salvar os dados: ", e);
+                            showToast("Erro: Não foi possível salvar os dados.", "error");
+                        }
+                    }
+                };
+
+                const exportarDados = () => {
+                    salvarDados();
+                    const jsonString = JSON.stringify(AppData, null, 2);
+                    const blob = new Blob([jsonString], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `marcenaria_pro_backup_${new Date().getTime()}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    a.remove();
+                    showToast("Backup JSON baixado com sucesso!", "success");
+                };
+
+                const recalculateAllMdfPrices = () => {
+                    if (!AppData.configCalculo || !AppData.coresMDF) return;
+                    const { chapaAltura, chapaLargura } = AppData.configCalculo;
+                    const areaChapa = (chapaAltura / 1000) * (chapaLargura / 1000);
+                    if (areaChapa > 0) {
+                        Object.keys(AppData.coresMDF).forEach((key) => {
+                            const material = AppData.coresMDF[key];
+                            if (material && material.precoChapa !== undefined) {
+                                material.preco = material.precoChapa / areaChapa;
+                            }
+                        });
+                    }
+                };
+                
+                const carregarDados = () => {
+                    const defaults = {
+                        catalogoModulos: [],
+                        coresMDF: { "branco-tx": { nome: "Branco TX", precoChapa: 150.0, imagem: null } },
+                        coresBorda: { "branco-tx": { nome: "Branco TX", preco: 1.5, imagem: null } },
+                        catalogoFerragens: {
+                            "dobradica-reta": { nome: "Dobradiça Reta 35mm", preco: 4.5, unidade: "UN", tipo: "geral", imagem: null },
+                            "puxador-ponto": { nome: "Puxador Ponto", preco: 8.0, unidade: "UN", tipo: "geral", imagem: null },
+                            "corredica-telescopica-generica": { nome: "Corrediça Telescópica (Genérica)", preco: 25.0, unidade: "PAR", tipo: "corredica", imagem: null },
+                            "corredica-invisivel-generica": { nome: "Corrediça Invisível (Genérica)", preco: 70.0, unidade: "PAR", tipo: "corredica", imagem: null },
+                        },
+                        catalogoPerfis: { "perfil-gola-bronze": { nome: "Perfil Gola Bronze", precoBarra: 90.0, metragemBarra: 3, preco: 30.0, imagem: null } },
+                        pecasPredefinidas: {
+                            laterais: { nome: "Lateral Dir/Esq", qtd: "2", altura: "A", largura: "P", tipoMaterial: "externa", tipoBorda: "externa", ferragensAssociadas: [] },
+                            "porta-un": { nome: "Porta (1 Folha)", qtd: "1", altura: "A - FolgaPortaAltura", largura: "L - FolgaPortaLargura", tipoMaterial: "externa", tipoBorda: "externa", ferragensAssociadas: [{ key: "dobradica-reta", qtdFormula: "2" }] },
+                            "lateral-gaveta": {
+                                nome: "Lateral Gaveta",
+                                qtd: "2",
+                                altura: "150",
+                                largura: "MedidaCorredica",
+                                tipoMaterial: "interna",
+                                tipoBorda: "interna",
+                                ferragensAssociadas: []
+                            }
+                        },
+                        configCalculo: {
+                            espInterna: 15, espExterna: 18, espFundo: 6, folgaPortaAltura: 3, folgaPortaLargura: 3,
+                            descFundoArmario: 10, folgaCorredicaFrente: 10, folgaCorredicaFundo: 20,
+                            acrescimoPuxadorCava: 20, descontoPerfilAltura: 0, descontoPerfilLargura: 0,
+                            custoBorda: 1.5, margemLucroMaterial: 100,
+                            chapaAltura: 2750, chapaLargura: 1840,
+                            medidasCorredicas: "250,300,350,400,450,500,550,600",
+                            folgaGavetaTelescopica: 26,
+                            folgaGavetaInvisivel: 10,
+                            descFundoGavetaTelescopica: 10,
+                            descFundoGavetaInvisivel: 10,
+                            recuoFrenteGavetaInvisivel: 10,
+                            descAlturaBaseGavTelescopica: 25,
+                            descAlturaLateralGavTelescopica: 25,
+                            descAlturaBaseGavInvisivel: 80,
+                            descAlturaLateralGavInvisivel: 25,
+                            puxadorExternoPadrao: "puxador-ponto",
+                            dobradicaRetaPadrao: "dobradica-reta",
+                            dobradicaCurvaPadrao: "",
+                            corredicaTelescopicaPadrao: "corredica-telescopica-generica",
+                            corredicaInvisivelPadrao: "corredica-invisivel-generica",
+                            pistaoGasPadrao: "",
+                        },
+                    };
+
+                    let dataLoaded = false;
+                    const preloadedDataElement = getEl("preloaded-data");
+
+                    try {
+                        if (preloadedDataElement && preloadedDataElement.textContent.trim() !== 'null' && preloadedDataElement.textContent.trim() !== '') {
+                            const preloadedData = JSON.parse(preloadedDataElement.textContent);
+                            if (preloadedData.catalogoModulos && preloadedData.coresMDF) {
+                                Object.keys(defaults).forEach((key) => {
+                                    if(preloadedData[key] && typeof preloadedData[key] === 'object' && !Array.isArray(preloadedData[key])) {
+                                        AppData[key] = { ...defaults[key], ...preloadedData[key] };
+                                    } else {
+                                        AppData[key] = preloadedData[key] || defaults[key];
+                                    }
+                                });
+                                dataLoaded = true;
+                                console.log("Dados carregados do script embutido no HTML.");
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Erro ao carregar dados embutidos, recorrendo ao localStorage.", e);
+                    }
+
+                    if (!dataLoaded) {
+                        console.log("Nenhum dado embutido encontrado. Carregando do localStorage ou usando padrões.");
+                        Object.keys(defaults).forEach((key) => {
+                            const localData = localStorage.getItem(`marcenaria_pro_${key}`);
+                            if (localData) {
+                                try {
+                                    const parsedData = JSON.parse(localData);
+                                    if (key === "configCalculo") {
+                                        AppData[key] = { ...defaults[key], ...parsedData };
+                                    } else {
+                                        AppData[key] = parsedData;
+                                    }
+                                } catch (e) {
+                                    AppData[key] = defaults[key];
+                                }
+                            } else {
+                                AppData[key] = defaults[key];
+                            }
+                        });
+                    }
+
+                    if (AppData.catalogoModulos && Array.isArray(AppData.catalogoModulos)) {
+                        AppData.catalogoModulos.forEach(mod => {
+                            if (!mod.pecas) mod.pecas = [];
+                        });
+                    }
+
+                    recalculateAllMdfPrices();
+                };
+
+                const gerenciarCatalogoObjetos = (tipo, obj, containerId) => {
+                    const container = getEl(containerId);
+                    if(!container) return;
+                    container.innerHTML = "";
+
+                    if(!obj) {
+                        console.error(`Objeto de dados para '${tipo}' é nulo ou indefinido.`);
+                        return;
+                    }
+
+                    Object.keys(obj)
+                        .sort((a, b) => obj[a].nome.localeCompare(obj[b].nome))
+                        .forEach((key) => {
+                            const item = obj[key];
+                            const div = document.createElement("div");
+                            div.className = "catalogo-item catalogo-item-com-imagem";
+                            div.dataset.filterName = `${item.nome}`.toLowerCase();
+                            const placeholderImg = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
+                            let displayInfo = item.nome;
+                            if (item.preco !== undefined) {
+                                let unit = "UN";
+                                if (tipo === "coresMDF") unit = "m²";
+                                else if (tipo === "coresBorda") unit = "m";
+                                else if (tipo === "catalogoPerfis") unit = "m";
+                                else if (item.unidade) unit = item.unidade;
+
+                                displayInfo += ` (R$ ${item.preco.toFixed(2)} / ${unit})`;
+                            } else if (tipo === "pecasPredefinidas") {
+                                displayInfo += ` (Qtd: ${item.qtd || '1'}, A: ${item.altura || '0'}, L: ${item.largura || '0'})`;
+                            }
+
+
+                            let buttonsHtml = `<div class="botoes-acao" style="margin-top:0; margin-left: auto; flex-wrap:nowrap;">`;
+                            if (tipo === "catalogoFerragens") {
+                                buttonsHtml += `<button class="btn-warning btn-sm btn-edit-ferragem" data-key="${key}" data-type="${tipo}">Editar</button>`;
+                            } else if (tipo === "coresMDF" || tipo === "coresBorda") {
+                                buttonsHtml += `<button class="btn-warning btn-sm btn-edit-material" data-key="${key}" data-type="${tipo}">Editar</button>`;
+                            } else if (tipo === "catalogoPerfis") {
+                                buttonsHtml += `<button class="btn-warning btn-sm btn-edit-perfil" data-key="${key}" data-type="${tipo}">Editar</button>`;
+                            } else if (tipo === "pecasPredefinidas") {
+                                buttonsHtml += `<button class="btn-warning btn-sm btn-edit-peca" data-key="${key}" data-type="${tipo}">Editar</button>`;
+                            }
+                            buttonsHtml += `<button class="btn-danger btn-sm btn-delete" data-key="${key}" data-type="${tipo}">X</button></div>`;
+
+                            div.innerHTML = `<img src="${item.imagem || placeholderImg}"><span>${displayInfo}</span>${buttonsHtml}`;
+                            container.appendChild(div);
+                        });
+                };
+
+                const popularSeletorObjetos = (seletorId, obj, placeholder, useKeyAsValue = true) => {
+                    const select = typeof seletorId === "string" ? getEl(seletorId) : seletorId;
+                    if(!select) return;
+                    select.innerHTML = `<option value="">-- ${placeholder} --</option>`;
+                     if(!obj) {
+                        console.error(`Objeto de dados para o seletor '${seletorId}' é nulo ou indefinido.`);
+                        return;
+                    }
+                    Object.keys(obj)
+                        .sort((a, b) => obj[a].nome.localeCompare(obj[b].nome))
+                        .forEach((key) => {
+                            const value = useKeyAsValue ? key : obj[key].nome;
+                            select.innerHTML += `<option value="${value}">${obj[key].nome}</option>`;
+                        });
+                };
+
+                const atualizarListaCategorias = () => {
+                    const select = getEl("categoriaModuloSelect");
+                    if (!select || !AppData.catalogoModulos) return;
+                    const categorias = [...new Set(AppData.catalogoModulos.map((m) => m.categoria).filter((c) => c))].sort();
+                    select.innerHTML = `<option value="">Sem Categoria</option>`;
+                    categorias.forEach((cat) => {
+                        select.innerHTML += `<option value="${cat}">${cat}</option>`;
+                    });
+                    select.innerHTML += `<option value="_add_new_">-- Adicionar Nova Categoria --</option>`;
+                };
+
+                const popularModalCatalogoCompleto = () => {
+                    const popularLista = (containerId, catalogo, unidade) => {
+                        const container = getEl(containerId);
+                        if (!container) return;
+                        container.innerHTML = "";
+                        const ul = document.createElement("ul");
+                        ul.className = "lista-catalogo-completo";
+
+                        if (!catalogo || Object.keys(catalogo).length === 0) {
+                            ul.innerHTML = "<li>Nenhum item cadastrado.</li>";
+                        } else {
+                            Object.keys(catalogo)
+                                .sort((a, b) => catalogo[a].nome.localeCompare(catalogo[b].nome))
+                                .forEach((key) => {
+                                    const item = catalogo[key];
+                                    const li = document.createElement("li");
+                                    let displayInfo = item.nome;
+                                    let preco = '';
+
+                                    if (item.preco !== undefined) {
+                                        preco = `<span class="preco">R$ ${item.preco.toFixed(2)} / ${item.unidade || unidade}</span>`;
+                                    } else if (item.qtd) {
+                                        preco = `<span class="preco">Qtd: ${item.qtd}, A:${item.altura}, L:${item.largura}</span>`;
+                                    }
+                                    li.innerHTML = `<span>${displayInfo}</span>${preco}`;
+                                    ul.appendChild(li);
+                                });
+                        }
+                        container.appendChild(ul);
+                    };
+
+                    popularLista("lista-completa-mdf", AppData.coresMDF, "m²");
+                    popularLista("lista-completa-borda", AppData.coresBorda, "m");
+                    popularLista("lista-completa-perfis", AppData.catalogoPerfis, "m");
+                    popularLista("lista-completa-ferragens", AppData.catalogoFerragens, "");
+                    popularLista("lista-completa-pecas", AppData.pecasPredefinidas, "");
+                };
+
+                const popularTodosSeletores = () => {
+                    gerenciarCatalogoObjetos("coresMDF", AppData.coresMDF, "listaCoresMDF");
+                    gerenciarCatalogoObjetos("coresBorda", AppData.coresBorda, "listaCoresBorda");
+                    gerenciarCatalogoObjetos("catalogoFerragens", AppData.catalogoFerragens, "listaFerragensCatalogo");
+                    gerenciarCatalogoObjetos("pecasPredefinidas", AppData.pecasPredefinidas, "listaPecasPredefinidas");
+                    gerenciarCatalogoObjetos("catalogoPerfis", AppData.catalogoPerfis, "listaPerfisPuxador");
+
+                    popularSeletorObjetos("projCorInterna", AppData.coresMDF, "Selecione uma Cor");
+                    popularSeletorObjetos("projCorExterna", AppData.coresMDF, "Selecione uma Cor");
+                    popularSeletorObjetos("moduloCorBordaInterna", AppData.coresBorda, "Selecione uma Cor de Borda");
+                    popularSeletorObjetos("moduloCorBordaExterna", AppData.coresBorda, "Selecione uma Cor de Borda");
+                    popularSeletorObjetos("projCorBordaInterna", AppData.coresBorda, "-- Usar Padrão do Módulo --");
+                    popularSeletorObjetos("projCorBordaExterna", AppData.coresBorda, "-- Usar Padrão do Módulo --");
+                    
+                    const corredicasCatalogo = AppData.catalogoFerragens ? Object.fromEntries(Object.entries(AppData.catalogoFerragens).filter(([k,v]) => v.tipo === 'corredica')) : {};
+                    popularSeletorObjetos("corredicaTelescopicaPadrao", corredicasCatalogo, "Escolha do catálogo");
+                    popularSeletorObjetos("corredicaInvisivelPadrao", corredicasCatalogo, "Escolha do catálogo");
+                    
+                    const puxadoresCatalogo = AppData.catalogoFerragens ? Object.fromEntries(Object.entries(AppData.catalogoFerragens).filter(([k,v]) => v.nome.toLowerCase().includes('puxador'))) : {};
+                    popularSeletorObjetos("puxadorExternoPadrao", puxadoresCatalogo, "Escolha do catálogo");
+
+                    const dobradicasRetaCatalogo = AppData.catalogoFerragens ? Object.fromEntries(Object.entries(AppData.catalogoFerragens).filter(([k,v]) => v.nome.toLowerCase().includes('dobradiça reta'))) : {};
+                    popularSeletorObjetos("dobradicaRetaPadrao", dobradicasRetaCatalogo, "Escolha do catálogo");
+
+                    const dobradicasCurvaCatalogo = AppData.catalogoFerragens ? Object.fromEntries(Object.entries(AppData.catalogoFerragens).filter(([k,v]) => v.nome.toLowerCase().includes('dobradiça curva'))) : {};
+                    popularSeletorObjetos("dobradicaCurvaPadrao", dobradicasCurvaCatalogo, "Escolha do catálogo");
+
+                    const pistoesCatalogo = AppData.catalogoFerragens ? Object.fromEntries(Object.entries(AppData.catalogoFerragens).filter(([k,v]) => v.nome.toLowerCase().includes('pistão'))) : {};
+                    popularSeletorObjetos("pistaoGasPadrao", pistoesCatalogo, "Escolha do catálogo");
+
+                    popularSeletorObjetos("moduloFerragemSelect", AppData.catalogoFerragens, "Escolha uma ferragem");
+                    popularSeletorObjetos("ferragensExtrasSelect", AppData.catalogoFerragens, "Escolha do catálogo");
+                    popularSeletorObjetos("pecas-predefinidas", AppData.pecasPredefinidas, "Ou adicione uma peça pré-definida");
+
+                    atualizarCatalogoSelect();
+                    atualizarListaCategorias();
+                };
+
+                const adicionarNovaPeca = (peca = {}) => {
+                    const clone = getEl("template-peca").content.cloneNode(true);
+                    const wrapper = clone.querySelector(".peca-item-wrapper");
+                    const item = wrapper.querySelector(".peca-item");
+                    const ferragemSelect = wrapper.querySelector(".peca-ferragem-select");
+                    const qtdInput = wrapper.querySelector(".peca-ferragem-qtd");
+                    const addFerragemBtn = wrapper.querySelector(".btn-add-ferragem-assoc");
+                    const ferragensContainer = wrapper.querySelector(".ferragens-associadas-container");
+
+                    item.querySelector(".peca-nome").value = peca.nome || "";
+                    item.querySelector(".peca-qtd").value = peca.qtd || "1";
+                    item.querySelector(".peca-altura").value = peca.altura || "";
+                    item.querySelector(".peca-largura").value = peca.largura || "";
+                    item.querySelector(".peca-material-tipo").value = peca.tipoMaterial || "interna";
+                    item.querySelector(".peca-borda-tipo").value = peca.tipoBorda || "interna";
+                    item.querySelector(".peca-borda-a1").checked = peca.bordaA1 || false;
+                    item.querySelector(".peca-borda-a2").checked = peca.bordaA2 || false;
+                    item.querySelector(".peca-borda-l1").checked = peca.bordaL1 || false;
+                    item.querySelector(".peca-borda-l2").checked = peca.bordaL2 || false;
+                    item.querySelector(".btn-remover-peca").addEventListener("click", () => wrapper.remove());
+
+                    popularSeletorObjetos(ferragemSelect, AppData.catalogoFerragens, "Catálogo de Ferragens");
+
+                    const adicionarFerragemAssocUI = (ferragemAssoc) => {
+                        const ferragemData = AppData.catalogoFerragens[ferragemAssoc.key];
+                        if (!ferragemData) return;
+                        const div = getEl("template-ferragem-assoc").content.cloneNode(true).querySelector(".catalogo-item");
+                        div.dataset.key = ferragemAssoc.key;
+                        div.dataset.qtdFormula = ferragemAssoc.qtdFormula;
+                        
+                        let displayText = `${ferragemData.nome} (Qtd: ${ferragemAssoc.qtdFormula})`;
+                        div.querySelector("span").textContent = displayText;
+                        div.querySelector("button").onclick = () => div.remove();
+                        ferragensContainer.appendChild(div);
+                    };
+
+                    addFerragemBtn.addEventListener("click", () => {
+                        const key = ferragemSelect.value;
+                        const qtdFormula = qtdInput.value.trim();
+                        if (!key || !qtdFormula) return showToast("Selecione uma ferragem e digite a quantidade/fórmula.", "error");
+                        adicionarFerragemAssocUI({ key, qtdFormula });
+                        ferragemSelect.value = "";
+                        qtdInput.value = "";
+                    });
+
+                    if (peca.ferragensAssociadas) {
+                        peca.ferragensAssociadas.forEach(adicionarFerragemAssocUI);
+                    }
+
+                    pecasContainer.appendChild(clone);
+                    atualizarTodosOsHelpersNoModal(getEl("moduloTipo").value);
+                };
+
+                const adicionarFerragemAoModuloUI = (ferragemItem) => {
+                    const key = ferragemItem.key,
+                        valor = ferragemItem.valor;
+                    const ferragem = AppData.catalogoFerragens[key];
+                    if (!ferragem) return;
+                    const container = getEl("ferragens-modulo-container");
+                    const div = getEl("template-ferragem-modulo").content.cloneNode(true).querySelector(".catalogo-item");
+                    div.dataset.key = key;
+                    div.dataset.valor = valor;
+                    div.querySelector("span").textContent = `${valor} ${ferragem.unidade} de ${ferragem.nome}`;
+                    div.querySelector("button").onclick = () => div.remove();
+                    container.appendChild(div);
+                };
+
+                const resetModuleCreatorForm = () => {
+                    getEl("categoriaModuloSelect").value = "";
+                    getEl("novaCategoriaInput").value = "";
+                    getEl("novaCategoriaInput").style.display = "none";
+                    getEl("nomeModulo").value = "";
+                    getEl("moduloTipo").value = "reto";
+                    pecasContainer.innerHTML = "";
+                    getEl("ferragens-modulo-container").innerHTML = "";
+
+                    getEl("imagemModuloPreview").src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                    getEl("imagemModuloPreview").nextElementSibling.value = "";
+                    imagemModuloBase64 = null;
+                    editingModuleId = null;
+                    getEl("modal-modulo-titulo").textContent = "Criar Novo Módulo";
+                    getEl("modal-modulo-descricao").textContent = "Crie ou edite modelos completos, definindo suas peças, fórmulas e as ferragens necessárias.";
+                    getEl("btnSalvarModulo").textContent = "Salvar Módulo";
+                    atualizarTodosOsHelpersNoModal("reto");
+                };
+
+                const carregarModuloParaEdicao = (moduloId) => {
+                    const modulo = AppData.catalogoModulos.find((m) => m.id === moduloId);
+                    if (!modulo) return;
+                    resetModuleCreatorForm();
+                    editingModuleId = moduloId;
+                    getEl("modal-modulo-titulo").textContent = "Editar Módulo";
+                    getEl("btnSalvarModulo").textContent = "Salvar Alterações";
+                    getEl("categoriaModuloSelect").value = modulo.categoria || "";
+                    getEl("nomeModulo").value = modulo.nome;
+                    getEl("moduloTipo").value = modulo.tipo || "reto";
+                    getEl("moduloCorBordaInterna").value = modulo.corBordaInterna;
+                    getEl("moduloCorBordaExterna").value = modulo.corBordaExterna;
+                    if (modulo.imagem) {
+                        getEl("imagemModuloPreview").src = modulo.imagem;
+                        imagemModuloBase64 = modulo.imagem;
+                    }
+                    (modulo.pecas || []).forEach(adicionarNovaPeca);
+                    (modulo.ferragens || []).forEach(adicionarFerragemAoModuloUI);
+
+                    fecharModal("modal-gerenciar-modulos");
+                    abrirModal("modal-modulo");
+                    atualizarTodosOsHelpersNoModal(getEl("moduloTipo").value);
+                };
+
+                const getModuleDataFromForm = () => {
+                    const modal = getEl("modal-modulo");
+                    const nome = modal.querySelector("#nomeModulo").value.trim();
+                    if (!nome) {
+                        showToast("Dê um nome ao módulo.", "error");
+                        return null;
+                    }
+
+                    let categoria = getEl("categoriaModuloSelect").value;
+                    const novaCategoria = getEl("novaCategoriaInput").value.trim();
+                    if (categoria === "_add_new_") {
+                        categoria = novaCategoria || "";
+                    }
+
+                    const pecas = Array.from(modal.querySelectorAll("#pecas-container .peca-item-wrapper")).map((wrapper) => {
+                        const item = wrapper.querySelector(".peca-item");
+                        const ferragensAssociadas = Array.from(wrapper.querySelectorAll(".ferragens-associadas-container .catalogo-item")).map((ferragemEl) => ({
+                            key: ferragemEl.dataset.key,
+                            qtdFormula: ferragemEl.dataset.qtdFormula
+                        }));
+                        return {
+                            nome: item.querySelector(".peca-nome").value,
+                            qtd: item.querySelector(".peca-qtd").value,
+                            altura: item.querySelector(".peca-altura").value,
+                            largura: item.querySelector(".peca-largura").value,
+                            tipoMaterial: item.querySelector(".peca-material-tipo").value,
+                            tipoBorda: item.querySelector(".peca-borda-tipo").value,
+                            bordaA1: item.querySelector(".peca-borda-a1").checked,
+                            bordaA2: item.querySelector(".peca-borda-a2").checked,
+                            bordaL1: item.querySelector(".peca-borda-l1").checked,
+                    bordaL2: item.querySelector(".peca-borda-l2").checked,
+                            ferragensAssociadas,
+                        };
+                    });
+
+                    const ferragensGerais = Array.from(modal.querySelectorAll("#ferragens-modulo-container .catalogo-item")).map((item) => ({
+                        key: item.dataset.key,
+                        valor: parseFloat(item.dataset.valor),
+                    }));
+
+                    if (pecas.length === 0) {
+                        showToast("Adicione pelo menos uma peça ao módulo.", "error");
+                        return null;
+                    }
+                    return {
+                        categoria,
+                        nome,
+                        imagem: imagemModuloBase64,
+                        pecas,
+                        ferragens: ferragensGerais,
+                        corBordaInterna: modal.querySelector("#moduloCorBordaInterna").value,
+                        corBordaExterna: modal.querySelector("#moduloCorBordaExterna").value,
+                        tipo: getEl("moduloTipo").value,
+                    };
+                };
+
+                const salvarModulo = () => {
+                    const moduloData = getModuleDataFromForm();
+                    if (!moduloData) return;
+
+                    if (editingModuleId) {
+                        const index = AppData.catalogoModulos.findIndex((m) => m.id === editingModuleId);
+                        AppData.catalogoModulos[index] = { id: editingModuleId, ...moduloData };
+                        showToast(`Módulo "${moduloData.nome}" atualizado!`);
+                    } else {
+                        AppData.catalogoModulos.push({ id: Date.now(), ...moduloData });
+                        showToast(`Módulo "${moduloData.nome}" salvo!`);
+                    }
+
+                    salvarDados();
+                    atualizarCatalogoSelect();
+                    atualizarListaCategorias();
+                    fecharModal("modal-modulo");
+                };
+
+                const atualizarCatalogoSelect = () => {
+                    catalogoModulosOptions.innerHTML = '';
+                    const placeholderImg = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
+                    const acoesHeader = document.createElement('li');
+                    acoesHeader.className = 'optgroup-header';
+                    acoesHeader.textContent = 'Ações';
+                    catalogoModulosOptions.appendChild(acoesHeader);
+
+                    const pecaAvulsaLi = document.createElement('li');
+                    pecaAvulsaLi.dataset.value = '_peca_avulsa_';
+                    pecaAvulsaLi.innerHTML = `<img src="${placeholderImg}"> <span>[Adicionar Peça Avulsa]</span>`;
+                    catalogoModulosOptions.appendChild(pecaAvulsaLi);
+
+                    const modulosHeader = document.createElement('li');
+                    modulosHeader.className = 'optgroup-header';
+                    modulosHeader.textContent = 'Módulos Completos';
+                    catalogoModulosOptions.appendChild(modulosHeader);
+                    
+                    if(AppData.catalogoModulos){
+                        AppData.catalogoModulos
+                            .sort((a, b) => a.nome.localeCompare(b.nome))
+                            .forEach((m) => {
+                                const li = document.createElement('li');
+                                li.dataset.value = m.id;
+                                li.dataset.imgSrc = m.imagem || placeholderImg;
+                                const catText = m.categoria ? `[${m.categoria}] ` : "";
+                                li.innerHTML = `<img src="${m.imagem || placeholderImg}"> <span>${catText}${m.nome}</span>`;
+                                catalogoModulosOptions.appendChild(li);
+                            });
+                    }
+
+                    catalogoModulosTrigger.dataset.value = "";
+                    catalogoModulosTrigger.querySelector('.selected-text').textContent = '-- Selecione --';
+                };
+
+                const atualizarResumoProjeto = () => {
+                    if (projetoAtual.modulos.length === 0 && projetoAtual.ferragensExtras.length === 0) {
+                        resumoContainer.style.display = "none";
+                        return;
+                    }
+                    const placeholderImg = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                    resumoContainer.style.display = "block";
+                    listaResumo.innerHTML = "";
+                    projetoAtual.modulos.forEach((modulo) => {
+                        const li = document.createElement("li");
+                        const corInternaNome = AppData.coresMDF[modulo.corMaterialInterna]?.nome || "N/A";
+                        const corExternaNome = AppData.coresMDF[modulo.corMaterialExterna]?.nome || "N/A";
+                        const bordaInternaDisplay = AppData.coresBorda[modulo.corBordaInterna]?.nome || "Padrão";
+                        const bordaExternaDisplay = AppData.coresBorda[modulo.corBordaExterna]?.nome || "Padrão";
+                        
+                        let tipoPuxadorTexto = "Puxador: Externo";
+                        if (modulo.tipoPuxador === "cava_horizontal") tipoPuxadorTexto = "Puxador: Cava Horizontal";
+                        if (modulo.tipoPuxador === "cava_vertical") tipoPuxadorTexto = "Puxador: Cava Vertical";
+                        if (modulo.tipoPuxador === "perfil_horizontal") tipoPuxadorTexto = "Puxador: Perfil Horizontal";
+                        if (modulo.tipoPuxador === "perfil_vertical") tipoPuxadorTexto = "Puxador: Perfil Vertical";
+                        
+                        const isDrawerModule = modulo.pecas.some(p => p.nome.toLowerCase().includes('gaveta'));
+                        const isDoorModule = modulo.pecas.some(p => p.nome.toLowerCase().includes('porta'));
+
+                        let ferragensInfo = [];
+                        ferragensInfo.push(`<b>${tipoPuxadorTexto}</b>`);
+                        if (isDrawerModule) ferragensInfo.push(`<b>Corrediça: ${modulo.tipoCorredica === 'invisivel' ? 'Invisível' : 'Telescópica'}</b>`);
+                        if (isDoorModule) ferragensInfo.push(`<b>Dobradiça: ${modulo.tipoDobradica === 'curva' ? 'Curva' : 'Reta'}</b>`);
+
+                        const detalhesCores = `
+                        <div class="resumo-detalhes-cores">
+                            Material Interno: <b>${corInternaNome}</b> | Externo: <b>${corExternaNome}</b><br>
+                            Fita Borda Interna: <b>${bordaInternaDisplay}</b> | Externa: <b>${bordaExternaDisplay}</b><br>
+                            ${ferragensInfo.join(' | ')}
+                        </div>`;
+
+                        let dimensoesTexto = "";
+                        if(modulo.isPecaAvulsa){
+                            dimensoesTexto = `(A:${modulo.altura} L:${modulo.largura} E:${modulo.espessura})`;
+                        } else if (modulo.tipoModulo === "reto") {
+                            dimensoesTexto = `(A:${modulo.altura} L:${modulo.largura} P:${modulo.profundidade})`;
+                        } else {
+                            dimensoesTexto = `(A:${modulo.altura} LadoA:${modulo.ladoA} LadoB:${modulo.ladoB} ProfA:${modulo.profA} ProfB:${modulo.profB})`;
+                        }
+                        const img = modulo.imagem || placeholderImg;
+                        li.innerHTML = `
+                        <div class="item-info">
+                             <img src="${img}" alt="${modulo.nome}">
+                            <div>
+                                <span>${modulo.nome} <span class="dimensoes">${dimensoesTexto}</span></span>
+                                ${detalhesCores}
+                            </div>
+                        </div>
+                        <button class="btn-danger btn-sm" data-instance-id="${modulo.instanceId}">Remover</button>`;
+                        listaResumo.appendChild(li);
+                    });
+                    projetoAtual.ferragensExtras.forEach((ferragem) => {
+                        const li = document.createElement("li");
+                        const img = ferragem.imagem || placeholderImg;
+                        li.innerHTML = `
+                        <div class="item-info">
+                            <img src="${img}" alt="${ferragem.nome}">
+                            <span>${ferragem.valor}${ferragem.unidade} de ${ferragem.nome} (Extra)</span>
+                        </div>
+                        <button class="btn-danger btn-sm" data-instance-id="${ferragem.instanceId}">Remover</button>`;
+                        listaResumo.appendChild(li);
+                    });
+                };
+                
+                const finalizarAdicaoModulo = () => {
+                    if(!moduloTemporario) return;
+
+                    const { selectedValue, corMaterialInternaKey, corMaterialExternaKey, tipoPuxador, tipoModulo, dimensions, tipoCorredica, tipoDobradica } = moduloTemporario;
+                    const config = AppData.configCalculo;
+                    let moduloBase;
+
+                    if (selectedValue === '_peca_avulsa_') {
+                        moduloBase = {
+                            nome: `Peça Avulsa`,
+                            isPecaAvulsa: true,
+                            pecas: [{ nome: 'Peça', qtd: '1', altura: String(dimensions.altura), largura: String(dimensions.largura), tipoMaterial: 'externa', tipoBorda: 'externa' }],
+                            ferragens: [],
+                        };
+                    } else {
+                        moduloBase = AppData.catalogoModulos.find((m) => m.id == parseInt(selectedValue));
+                    }
+
+                    if (moduloBase) {
+                        const isCorredicaInvisivel = tipoCorredica === 'invisivel';
+
+                        const moduloNoProjeto = {
+                            ...moduloBase,
+                            ...dimensions,
+                            instanceId: "inst_mod_" + Date.now(),
+                            corMaterialInterna: corMaterialInternaKey,
+                            corMaterialExterna: corMaterialExternaKey,
+                            corBordaInterna: getEl("projCorBordaInterna").value,
+                            corBordaExterna: getEl("projCorBordaExterna").value,
+                            tipoPuxador: tipoPuxador,
+                            tipoModulo: tipoModulo,
+                            tipoCorredica: tipoCorredica,
+                            tipoDobradica: tipoDobradica,
+                            descAlturaBaseGav: isCorredicaInvisivel ? config.descAlturaBaseGavInvisivel : config.descAlturaBaseGavTelescopica,
+                            descAlturaLateralGav: isCorredicaInvisivel ? config.descAlturaLateralGavInvisivel : config.descAlturaLateralGavTelescopica,
+                            folgaCorredicaFrente: config.folgaCorredicaFrente,
+                            folgaCorredicaFundo: config.folgaCorredicaFundo,
+                            puxadorExternoKey: config.puxadorExternoPadrao,
+                            dobradicaRetaKey: config.dobradicaRetaPadrao,
+                            dobradicaCurvaKey: config.dobradicaCurvaPadrao,
+                            corredicaTelescopicaKey: config.corredicaTelescopicaPadrao,
+                            corredicaInvisivelKey: config.corredicaInvisivelPadrao,
+                            pistaoGasKey: config.pistaoGasPadrao,
+                        };
+                        projetoAtual.modulos.push(moduloNoProjeto);
+                        showToast(`"${moduloBase.nome}" adicionado ao projeto.`);
+                        atualizarResumoProjeto();
+                        catalogoModulosTrigger.dataset.value = '';
+                        catalogoModulosTrigger.querySelector('.selected-text').textContent = '-- Selecione --';
+                        getEl('imagemModuloPreviewProjeto').src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                    }
+                    moduloTemporario = null; 
+                };
+
+
+                const adicionarFerragemExtra = () => {
+                    const select = getEl("ferragensExtrasSelect"),
+                        valorInput = getEl("ferragemExtraValor");
+                    const key = select.value,
+                        valor = parseFloat(valorInput.value);
+                    if (!key || !valor || valor <= 0) return showToast("Selecione uma ferragem e um valor válido.", "error");
+                    const ferragemData = AppData.catalogoFerragens[key];
+                    projetoAtual.ferragensExtras.push({ ...ferragemData, valor, instanceId: "inst_fer_" + Date.now() });
+                    showToast(`Ferragem "${ferragemData.nome}" adicionada.`);
+                    select.value = "";
+                    valorInput.value = "";
+                    atualizarResumoProjeto();
+                };
+
+                const removerItemDoProjeto = (instanceId) => {
+                    projetoAtual.modulos = projetoAtual.modulos.filter((m) => m.instanceId !== instanceId);
+                    projetoAtual.ferragensExtras = projetoAtual.ferragensExtras.filter((f) => f.instanceId !== instanceId);
+                    showToast("Item removido do projeto.");
+                    atualizarResumoProjeto();
+                };
+
+                const carregarConfiguracoesParaInputs = () => {
+                    if(!AppData.configCalculo) return;
+                    Object.keys(AppData.configCalculo).forEach((key) => {
+                        const el = getEl(key);
+                        if (el) el.value = AppData.configCalculo[key];
+                    });
+                };
+
+                const salvarConfiguracoesDosInputs = () => {
+                    if(!AppData.configCalculo) return;
+                    Object.keys(AppData.configCalculo).forEach((key) => {
+                        const el = getEl(key);
+                        if (el) {
+                            if (el.type === "number") {
+                                AppData.configCalculo[key] = parseFloat(el.value) || 0;
+                            } else {
+                                AppData.configCalculo[key] = el.value;
+                            }
+                        }
+                    });
+                    recalculateAllMdfPrices();
+                    salvarDados();
+                    showToast("Configurações salvas!", "success");
+                };
+
+                const formatarNumero = (num) => (num % 1 === 0 ? num : num.toFixed(1));
+
+                const gerarListagem = () => {
+                    if (projetoAtual.modulos.length === 0 && projetoAtual.ferragensExtras.length === 0) return showToast("Adicione ao menos um item ao projeto.", "error");
+                    ultimoNomeCliente = getEl("nomeCliente").value;
+                    ultimoNomeAmbiente = getEl("nomeAmbiente").value; 
+                    const config = AppData.configCalculo;
+                    listaPecasGerada = [];
+                    listaFerragensGerada = [];
+
+                    const medidasCorredicasPadrao = (config.medidasCorredicas || "")
+                        .split(',')
+                        .map(m => parseInt(m.trim()))
+                        .filter(m => !isNaN(m))
+                        .sort((a, b) => a - b);
+
+                    const findCorredicaIdeal = (tamanho) => {
+                        if (medidasCorredicasPadrao.length === 0) return null;
+                        const idealSize = medidasCorredicasPadrao.slice().reverse().find(s => s <= tamanho);
+                        return idealSize || medidasCorredicasPadrao[0];
+                    };
+
+                    projetoAtual.modulos.forEach((modulo) => {
+                        let ajustePuxadorAltura = 0, ajustePuxadorLargura = 0, descontoPerfilAltura = 0, descontoPerfilLargura = 0;
+
+                        if (modulo.tipoPuxador === "cava_horizontal") ajustePuxadorAltura = config.acrescimoPuxadorCava;
+                        else if (modulo.tipoPuxador === "cava_vertical") ajustePuxadorLargura = config.acrescimoPuxadorCava;
+                        else if (modulo.tipoPuxador === "perfil_horizontal") descontoPerfilAltura = config.descontoPerfilAltura;
+                        else if (modulo.tipoPuxador === "perfil_vertical") descontoPerfilLargura = config.descontoPerfilLargura;
+
+                        const isCorredicaInvisivel = modulo.tipoCorredica === 'invisivel';
+                        const folgaGavetaAplicada = isCorredicaInvisivel ? config.folgaGavetaInvisivel : config.folgaGavetaTelescopica;
+                        const descFundoGavetaAplicado = isCorredicaInvisivel ? config.descFundoGavetaInvisivel : config.descFundoGavetaTelescopica;
+                        const recuoFrenteGavetaAplicado = isCorredicaInvisivel ? config.recuoFrenteGavetaInvisivel : 0;
+
+                        const { altura: modA = 0, largura: modL = 0, profundidade: modP = 0, ladoA: modLadoA = 0, ladoB: modLadoB = 0, profA: modProfA = 0, profB: modProfB = 0 } = modulo;
+                        const pecasDoModulo = [];
+                        let numFrentesGaveta = 0;
+                        let medidaCorredicaParaModulo = 0;
+
+                        const corredicaPadraoKey = isCorredicaInvisivel ? modulo.corredicaInvisivelKey : modulo.corredicaTelescopicaKey;
+                        const corredicaPadraoData = AppData.catalogoFerragens[corredicaPadraoKey];
+
+                        (modulo.pecas || []).forEach((peca) => {
+                            const formulaQtd = String(peca.qtd || "1");
+                            if (peca.nome.toLowerCase().includes("frente de gaveta")) {
+                                numFrentesGaveta += Math.ceil(evaluateFormula(formulaQtd.replace(/\bA\b/g, modA).replace(/\bL\b/g, modL).replace(/\bP\b/g, modP)));
+                            }
+                        });
+
+                        const medidaAlvoCorredica = evaluateFormula(String(modP - 50));
+                        medidaCorredicaParaModulo = findCorredicaIdeal(medidaAlvoCorredica);
+
+                        (modulo.pecas || []).forEach((peca) => {
+                             const formulaReplacer = (f) =>
+                                f ? String(f)
+                                    .replace(/\bA\b/g, modA).replace(/\bL\b/g, modL).replace(/\bP\b/g, modP)
+                                    .replace(/\bLadoA\b/g, modLadoA).replace(/\bLadoB\b/g, modLadoB).replace(/\bProfA\b/g, modProfA).replace(/\bProfB\b/g, modProfB)
+                                    .replace(/\bMedidaCorredica\b/g, medidaCorredicaParaModulo)
+                                    .replace(/\bEspInterna\b/g, config.espInterna).replace(/\bEspExterna\b/g, config.espExterna)
+                                    .replace(/\bDescFundoArmario\b/g, config.descFundoArmario)
+                                    .replace(/\bFolgaPortaAltura\b/g, config.folgaPortaAltura).replace(/\bFolgaPortaLargura\b/g, config.folgaPortaLargura)
+                                    .replace(/\bFolgaCorredicaFrente\b/g, config.folgaCorredicaFrente).replace(/\bFolgaCorredicaFundo\b/g, config.folgaCorredicaFundo)
+                                    .replace(/\bAjustePuxadorAltura\b/g, ajustePuxadorAltura).replace(/\bAjustePuxadorLargura\b/g, ajustePuxadorLargura)
+                                    .replace(/\bDescontoPerfilAltura\b/g, descontoPerfilAltura).replace(/\bDescontoPerfilLargura\b/g, descontoPerfilLargura)
+                                    .replace(/\bDescAlturaBaseGav\b/g, modulo.descAlturaBaseGav)
+                                    .replace(/\bDescAlturaLateralGav\b/g, modulo.descAlturaLateralGav)
+                                    .replace(/\bFolgaGavetaCorredica\b/g, folgaGavetaAplicada)
+                                    .replace(/\bDescFundoGavetaCorredica\b/g, descFundoGavetaAplicado)
+                                    .replace(/\bRecuoFrenteGavetaCorredica\b/g, recuoFrenteGavetaAplicado)
+                                    .replace(/\bFolgaGaveta\b/g, folgaGavetaAplicada)
+                                : "0";
+                            
+                            try {
+                                const alturaFinal = evaluateFormula(formulaReplacer(peca.altura));
+                                const larguraFinal = evaluateFormula(formulaReplacer(peca.largura));
+                                const qtdFinal = Math.ceil(evaluateFormula(formulaReplacer(peca.qtd)));
+
+                                let espessuraFinal, corMaterialKey;
+                                if (modulo.isPecaAvulsa) {
+                                    espessuraFinal = modulo.espessura;
+                                    corMaterialKey = modulo.corMaterialExterna;
+                                } else if (peca.tipoMaterial === "externa") {
+                                    espessuraFinal = config.espExterna;
+                                    corMaterialKey = modulo.corMaterialExterna;
+                                } else if (peca.tipoMaterial === "fundo") {
+                                    espessuraFinal = config.espFundo;
+                                    corMaterialKey = modulo.corMaterialInterna;
+                                } else {
+                                    espessuraFinal = config.espInterna;
+                                    corMaterialKey = modulo.corMaterialInterna;
+                                }
+
+                                const corBordaPrioridade = peca.tipoBorda === 'externa' ? modulo.corBordaExterna : modulo.corBordaInterna;
+                                const corBordaModulo = peca.tipoBorda === 'externa' ? modulo.corBordaExternaModulo : modulo.corBordaInternaModulo;
+                                const corMaterialComoBorda = peca.tipoBorda === 'externa' ? modulo.corMaterialExterna : modulo.corMaterialInterna;
+                                const corBordaKey = corBordaPrioridade || corBordaModulo || corMaterialComoBorda;
+
+                                pecasDoModulo.push({ ...peca, qtd: qtdFinal, alturaFinal, larguraFinal, espessura: espessuraFinal, id: `peca_${Date.now()}_${Math.random()}`, corMaterial: corMaterialKey, corBorda: corBordaKey, moduloInstanceId: modulo.instanceId, });
+                                const isDoorOrFront = peca.nome.toLowerCase().includes("porta") || peca.nome.toLowerCase().includes("frente");
+
+                                if (modulo.tipoPuxador.startsWith("perfil") && modulo.perfilAluminioKey && isDoorOrFront) {
+                                    const perfilData = AppData.catalogoPerfis[modulo.perfilAluminioKey];
+                                    if (perfilData) {
+                                        const valor = modulo.tipoPuxador === "perfil_horizontal" ? larguraFinal / 1000 : alturaFinal / 1000;
+                                        listaFerragensGerada.push({ ...perfilData, nome: perfilData.nome, valor: valor * qtdFinal, unidade: "M", id: `perfil_auto_${Date.now()}_${Math.random()}`, moduloInstanceId: modulo.instanceId, source: 'automatica' });
+                                    }
+                                } else if (modulo.tipoPuxador === "externo" && isDoorOrFront && modulo.puxadorExternoKey) {
+                                     const puxadorData = AppData.catalogoFerragens[modulo.puxadorExternoKey];
+                                     if(puxadorData) {
+                                         listaFerragensGerada.push({ ...puxadorData, valor: qtdFinal, id: `puxador_auto_${Date.now()}_${Math.random()}`, moduloInstanceId: modulo.instanceId, source: 'automatica' });
+                                     }
+                                }
+
+                                (peca.ferragensAssociadas || []).forEach(ferragemAssoc => {
+                                    const ferragemData = AppData.catalogoFerragens[ferragemAssoc.key];
+                                    if (!ferragemData) return;
+                                    const pecaFormulaReplacer = (f) => f ? String(f)
+                                        .replace(/\bA\b/g, alturaFinal).replace(/\bL\b/g, larguraFinal).replace(/\bQTD\b/g, qtdFinal)
+                                        .replace(/\bP\b/g, modP).replace(/\bMedidaCorredica\b/g, medidaCorredicaParaModulo)
+                                        .replace(/\bFolgaCorredicaFrente\b/g, modulo.folgaCorredicaFrente).replace(/\bFolgaCorredicaFundo\b/g, modulo.folgaCorredicaFundo)
+                                        .replace(/\bDescAlturaBaseGav\b/g, modulo.descAlturaBaseGav).replace(/\bDescAlturaLateralGav\b/g, modulo.descAlturaLateralGav)
+                                        : "0";
+                                    const qtdFerragemFinal = evaluateFormula(pecaFormulaReplacer(ferragemAssoc.qtdFormula));
+                                    
+                                    if (qtdFerragemFinal > 0) {
+                                        let chaveHardwareReal = ferragemAssoc.key;
+                                        const nomeBase = ferragemData.nome.toLowerCase();
+
+                                        if(nomeBase.includes('dobradiça reta')) chaveHardwareReal = modulo.dobradicaRetaKey;
+                                        else if(nomeBase.includes('dobradiça curva')) chaveHardwareReal = modulo.dobradicaCurvaKey;
+                                        else if(nomeBase.includes('pistão')) chaveHardwareReal = modulo.pistaoGasKey;
+
+                                        const hardwareFinal = AppData.catalogoFerragens[chaveHardwareReal];
+                                        if (hardwareFinal) {
+                                           listaFerragensGerada.push({ ...hardwareFinal, valor: qtdFerragemFinal, id: `fer_assoc_${Date.now()}_${Math.random()}`, moduloInstanceId: modulo.instanceId, source: 'associada_peca' });
+                                        }
+                                    }
+                                });
+                            } catch (e) { console.error(`Erro na peça '${peca.nome}':`, e); }
+                        });
+                        
+                        if (numFrentesGaveta > 0 && corredicaPadraoData) {
+                            const nomeBaseCorredica = corredicaPadraoData.nome.replace(/\s*\(genérica\)\s*/i, '').trim();
+                            const keyCorredicaIdeal = Object.keys(AppData.catalogoFerragens).find(k => {
+                                const item = AppData.catalogoFerragens[k];
+                                return item.nome.includes(nomeBaseCorredica) && item.nome.includes(String(medidaCorredicaParaModulo));
+                            });
+                            
+                            const corredicaFinal = keyCorredicaIdeal ? AppData.catalogoFerragens[keyCorredicaIdeal] : {...corredicaPadraoData, nome: `${nomeBaseCorredica} ${medidaCorredicaParaModulo}mm`};
+                            
+                            listaFerragensGerada.push({
+                                ...corredicaFinal,
+                                valor: numFrentesGaveta,
+                                id: `corredica_mod_${Date.now()}_${Math.random()}`,
+                                moduloInstanceId: modulo.instanceId,
+                                source: 'modulo_corredica'
+                            });
+                        }
+
+
+                        listaPecasGerada.push({ tipo: "header", nome: modulo.nome, A: modulo.altura, L: modulo.largura, P: modulo.profundidade, LadoA: modulo.ladoA, LadoB: modulo.ladoB, ProfA: modulo.profA, ProfB: modulo.profB, tipoModulo: modulo.tipoModulo, imagem: modulo.imagem, instanceId: modulo.instanceId, isPecaAvulsa: modulo.isPecaAvulsa, espessura: modulo.espessura });
+                        listaPecasGerada.push(...pecasDoModulo);
+
+                    });
+
+                    projetoAtual.ferragensExtras.forEach((f) => listaFerragensGerada.push({ ...f, id: f.instanceId, source: 'extra' }));
+                    renderizarTabelasEOrcamento();
+                    outputSection.style.display = "block";
+                    outputSection.scrollIntoView({ behavior: "smooth" });
+                    getEl("nomeCliente").value = ultimoNomeCliente;
+                    getEl("nomeAmbiente").value = ultimoNomeAmbiente;
+                };
+                
+                const recalcularOrcamentoTotal = () => {
+                    const config = AppData.configCalculo;
+
+                    const custoMaterial = orcamentoFinalData.custoTotalMaterial || 0;
+                    const lucroMaterialValor = custoMaterial * (config.margemLucroMaterial / 100);
+                    const totalFinal = custoMaterial + lucroMaterialValor;
+
+                    getEl("orcamento-custo-total-material").textContent = `R$ ${custoMaterial.toFixed(2)}`;
+                    getEl("orcamento-lucro-material").textContent = `R$ ${lucroMaterialValor.toFixed(2)}`;
+                    getEl("orcamento-total").textContent = `TOTAL GERAL: R$ ${totalFinal.toFixed(2)}`;
+                };
+
+                const getShoppingListData = () => {
+                    const config = AppData.configCalculo;
+                    const areaChapa = (config.chapaAltura / 1000) * (config.chapaLargura / 1000);
+                    const metragemPorMaterial = {};
+                    const metragemPorBorda = {};
+
+                    listaPecasGerada.forEach((item) => {
+                        if (item.tipo !== "header") {
+                            const { qtd, alturaFinal, larguraFinal, espessura, corMaterial, corBorda, bordaA1, bordaA2, bordaL1, bordaL2 } = item;
+                            const quantity = parseInt(qtd || 1);
+                            const corMaterialData = AppData.coresMDF[corMaterial];
+                            const corBordaData = AppData.coresBorda[corBorda];
+
+                            const corMaterialNome = corMaterialData ? corMaterialData.nome : "Material Desconhecido";
+                            const corBordaNome = corBordaData ? corBordaData.nome : "Borda Desconhecida";
+
+                            const areaPecaM2 = (alturaFinal / 1000) * (larguraFinal / 1000) * quantity;
+                            if (areaPecaM2 > 0) {
+                                const materialKey = `${corMaterialNome} ${espessura}mm`;
+                                metragemPorMaterial[materialKey] = (metragemPorMaterial[materialKey] || 0) + areaPecaM2;
+                            }
+
+                            let comprimentoBordaMM = [bordaA1, bordaA2].filter(Boolean).length * alturaFinal + [bordaL1, bordaL2].filter(Boolean).length * larguraFinal;
+                            const metragemPecaBordaM = (comprimentoBordaMM / 1000) * quantity;
+                            if (metragemPecaBordaM > 0) {
+                                metragemPorBorda[corBordaNome] = (metragemPorBorda[corBordaNome] || 0) + metragemPecaBordaM;
+                            }
+                        }
+                    });
+
+                    const ferragensAgrupadas = {};
+                    listaFerragensGerada.forEach((f) => {
+                        if (f && f.nome && f.unidade) {
+                            const key = `${f.nome}_${f.unidade}_${f.tipo}`;
+                            if (!ferragensAgrupadas[key]) {
+                                ferragensAgrupadas[key] = { nome: f.nome, unidade: f.unidade, preco: f.preco || 0, tipo: f.tipo || 'geral', valor: 0 };
+                            }
+                            ferragensAgrupadas[key].valor += f.valor;
+                        }
+                    });
+
+                    const groups = [];
+
+                    const mdfItems = Object.keys(metragemPorMaterial).map(key => {
+                        const m2 = metragemPorMaterial[key];
+                        let textoChapas = "";
+                        if (areaChapa > 0) {
+                            const numChapas = Math.ceil(m2 / areaChapa);
+                            textoChapas = ` (${numChapas} chapa${numChapas > 1 ? "s" : ""})`;
+                        }
+                        return { name: `Chapa ${key}`, quantity: `${m2.toFixed(2)} m²${textoChapas}` };
+                    });
+                    if (mdfItems.length > 0) groups.push({ title: '== CHAPAS DE MDF ==', items: mdfItems });
+
+                    const bordaItems = Object.keys(metragemPorBorda).map(cor => ({ name: `Fita de Borda ${cor}`, quantity: `${Math.ceil(metragemPorBorda[cor])} metros` }));
+                    if (bordaItems.length > 0) groups.push({ title: '== FITAS DE BORDA ==', items: bordaItems });
+
+                    const ferragemItems = [];
+                    const perfilItems = [];
+                    Object.values(ferragensAgrupadas).forEach((fAggregated) => {
+                        if (fAggregated.valor > 0) {
+                            let itemDisplayName = fAggregated.nome;
+                            let itemDisplayQuantity = `${Math.ceil(fAggregated.valor)} ${fAggregated.unidade}`;
+
+                            if (fAggregated.tipo === 'corredica') {
+                                const match = fAggregated.nome.match(/(\d+)mm/);
+                                if (match && match[1]) {
+                                    itemDisplayName = fAggregated.nome.replace(/\s?\d+mm$/, '').trim() + ` ${parseInt(match[1]) / 10}cm`;
+                                }
+                            }
+
+                            if (fAggregated.unidade === "M" && (itemDisplayName.toLowerCase().includes("puxador") || itemDisplayName.toLowerCase().includes("perfil"))) {
+                                const totalM = fAggregated.valor;
+                                const numBarras = Math.ceil(totalM / (AppData.catalogoPerfis[Object.keys(AppData.catalogoPerfis).find(k=>AppData.catalogoPerfis[k].nome === itemDisplayName)]?.metragemBarra || 3));
+                                const textoBarras = `(${numBarras} barra${numBarras > 1 ? "s" : ""})`;
+                                perfilItems.push({ name: itemDisplayName, quantity: `${totalM.toFixed(2)} metros ${textoBarras}` });
+                            } else {
+                                ferragemItems.push({ name: itemDisplayName, quantity: itemDisplayQuantity });
+                            }
+                        }
+                    });
+
+                    if (perfilItems.length > 0) groups.push({ title: '== PERFIS ==', items: perfilItems });
+                    if (ferragemItems.length > 0) groups.push({ title: '== FERRAGENS ==', items: ferragemItems });
+
+                    return groups;
+                };
+
+                const renderizarTabelasEOrcamento = () => {
+                    const config = AppData.configCalculo;
+                    const itensOrcamento = {};
+
+                    projetoAtual.modulos.forEach((mod) => {
+                        itensOrcamento[mod.instanceId] = { nome: mod.nome, dimensoes: mod.isPecaAvulsa ? `(A:${mod.altura} L:${mod.largura} E:${mod.espessura})` : (mod.tipoModulo === "reto" ? `(A:${mod.altura} L:${mod.largura} P:${mod.profundidade})` : `(A:${mod.altura} LadoA:${mod.ladoA} LadoB:${mod.ladoB} ProfA:${mod.profA} ProfB:${mod.profB})`), custoMDF: 0, custoBorda: 0, custoFerragens: 0 };
+                    });
+                     projetoAtual.ferragensExtras.forEach((f) => {
+                        itensOrcamento[f.instanceId] = { nome: `${f.valor}${f.unidade} de ${f.nome} (Extra)`, dimensoes: '', custoMDF: 0, custoBorda: 0, custoFerragens: f.valor * (f.preco || 0) };
+                    });
+
+                    listaFerragensGerada.forEach((f) => { if (f.moduloInstanceId && itensOrcamento[f.moduloInstanceId]) itensOrcamento[f.moduloInstanceId].custoFerragens += f.valor * (f.preco || 0); });
+                    listaPecasGerada.forEach((item) => {
+                        if (item.tipo === "header" || !item.moduloInstanceId || !itensOrcamento[item.moduloInstanceId]) return;
+                        const { qtd, alturaFinal, larguraFinal, corMaterial, corBorda, bordaA1, bordaA2, bordaL1, bordaL2 } = item;
+                        const corMaterialData = AppData.coresMDF[corMaterial] || { preco: 0 };
+                        const corBordaData = AppData.coresBorda[corBorda] || { preco: config.custoBorda };
+                        const quantity = parseInt(qtd || 1);
+                        itensOrcamento[item.moduloInstanceId].custoMDF += (alturaFinal / 1000) * (larguraFinal / 1000) * quantity * (corMaterialData.preco || 0);
+                        let comprimentoBordaMM = ([bordaA1, bordaA2].filter(Boolean).length * alturaFinal) + ([bordaL1, bordaL2].filter(Boolean).length * larguraFinal);
+                        itensOrcamento[item.moduloInstanceId].custoBorda += (comprimentoBordaMM / 1000) * quantity * (corBordaData.preco || 0);
+                    });
+
+                    Object.values(itensOrcamento).forEach((item) => {
+                        item.custoTotalMaterial = item.custoMDF + item.custoBorda + item.custoFerragens;
+                        item.valorVendaMaterial = item.custoTotalMaterial * (1 + config.margemLucroMaterial / 100);
+                    });
+
+                    orcamentoFinalData.itensOrcamento = itensOrcamento;
+                    orcamentoFinalData.custoTotalMaterial = Object.values(itensOrcamento).reduce((total, item) => total + item.custoTotalMaterial, 0);
+
+                    listaPecasTbody.innerHTML = "";
+                    listaPecasGerada.forEach((item) => {
+                        if (item.tipo === "header") {
+                            const valorVendaModulo = itensOrcamento[item.instanceId] ? itensOrcamento[item.instanceId].valorVendaMaterial : 0;
+                            const row = listaPecasTbody.insertRow();
+                            row.className = "group-header";
+                            const cell = row.insertCell(); cell.colSpan = 9;
+                            
+                            const originalModule = projetoAtual.modulos.find(m => m.instanceId === item.instanceId);
+                            let ferragensInfo = [];
+                            if (originalModule) {
+                                const isDrawerModule = originalModule.pecas.some(p => p.nome.toLowerCase().includes('gaveta'));
+                                const isDoorModule = originalModule.pecas.some(p => p.nome.toLowerCase().includes('porta'));
+                                if (isDrawerModule) ferragensInfo.push(`Corrediça: ${originalModule.tipoCorredica === 'invisivel' ? 'Invisível' : 'Telescópica'}`);
+                                if (isDoorModule) ferragensInfo.push(`Dobradiça: ${originalModule.tipoDobradica === 'curva' ? 'Curva' : 'Reta'}`);
+                            }
+                            
+                            let dimensoesTexto = item.isPecaAvulsa ? `(A:${item.A} L:${item.L} E:${item.espessura})` : (item.tipoModulo === "reto" ? `(A:${item.A} x L:${item.L} x P:${item.P})` : `(A:${item.A} LadoA:${item.LadoA} LadoB:${item.LadoB} ProfA:${item.ProfA} ProfB:${item.ProfB})`);
+                            let infoExtra = ferragensInfo.length > 0 ? ` | ${ferragensInfo.join(' | ')}` : '';
+                            
+                            cell.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;"><span><strong>${item.isPecaAvulsa ? 'Peça:' : 'Módulo:'} ${item.nome} ${dimensoesTexto}${infoExtra}</strong></span><span style="font-size: 1.1em;"><strong>Valor (Material + Lucro): R$ ${valorVendaModulo.toFixed(2)}</strong></span></div>`;
+                            return;
+                        }
+                        const { nome, qtd, alturaFinal, larguraFinal, espessura, corMaterial, corBorda, bordaA1, bordaA2, bordaL1, bordaL2 } = item;
+                        const corMaterialNome = (AppData.coresMDF[corMaterial] || { nome: '(Excluído)' }).nome;
+                        const corBordaNome = (AppData.coresBorda[corBorda] || { nome: '(Excluído)' }).nome;
+                        let bordasStr = [bordaA1 && "A1", bordaA2 && "A2", bordaL1 && "L1", bordaL2 && "L2"].filter(Boolean).join(" ");
+                        const row = listaPecasTbody.insertRow();
+                        row.innerHTML = `<td>${nome}</td><td>${qtd}</td><td>${formatarNumero(alturaFinal)}</td><td>${formatarNumero(larguraFinal)}</td><td>${espessura}</td><td>${corMaterialNome}</td><td>${bordasStr.trim()}</td><td>${corBordaNome}</td><td><button class="btn-danger btn-sm btn-remover-peca-final" data-id="${item.id}">X</button></td>`;
+                    });
+
+                    listaFerragensTbody.innerHTML = "";
+                    const ferragensAgrupadas = {};
+                    listaFerragensGerada.forEach((f) => {
+                        if (f && f.nome) {
+                            const key = `${f.nome}_${f.unidade}_${f.tipo}`;
+                            if (!ferragensAgrupadas[key]) {
+                                ferragensAgrupadas[key] = { ...f, valor: 0, ids: [] };
+                            }
+                            ferragensAgrupadas[key].valor += f.valor;
+                        }
+                    });
+                    Object.values(ferragensAgrupadas).forEach((f) => {
+                        const custoItemTotal = f.valor * f.preco;
+                        let displayName = f.nome;
+                        if (f.tipo === 'corredica') {
+                            const match = f.nome.match(/(\d+)mm/);
+                            if (match && match[1]) displayName = f.nome.replace(/\s?\d+mm$/, '').trim() + ` ${parseInt(match[1]) / 10}cm`;
+                        }
+                        const row = listaFerragensTbody.insertRow();
+                        row.innerHTML = `<td>${displayName}</td><td>${f.valor.toFixed(f.unidade === "UN" || f.unidade === "PAR" ? 0 : 2)} ${f.unidade}</td><td>R$ ${f.preco.toFixed(2)}</td><td>R$ ${custoItemTotal.toFixed(2)}</td><td><button class="btn-danger btn-sm btn-remover-ferragem-final" data-ids="${f.ids.join(",")}">X</button></td>`;
+                    });
+
+                    const shoppingListHTML = getShoppingListData().map(group => {
+                        let groupRows = `<tr class="group-header-shopping"><td colspan="2">${group.title}</td></tr>`;
+                        group.items.forEach(item => { groupRows += `<tr><td>${item.name}</td><td>${item.quantity}</td></tr>`; });
+                        return groupRows;
+                    }).join('');
+                    getEl("lista-materiais-compra").querySelector('tbody').innerHTML = shoppingListHTML;
+
+                    recalcularOrcamentoTotal();
+                };
+
+                const exportarPDFProducao = () => {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    const cliente = getEl("nomeCliente").value || "Não informado";
+                    const ambiente = getEl("nomeAmbiente").value || "Não especificado";
+
+                    doc.setFontSize(18); doc.text("Lista de Produção", 14, 22);
+                    doc.setFontSize(11); doc.setFont(undefined, "normal");
+                    doc.text(`Projeto: ${cliente} - ${ambiente}`, 14, 28);
+                    let lastY = 36;
+                    
+                    const pecasAgrupadas = listaPecasGerada.reduce((acc, item) => {
+                        if (item.tipo === "header") acc.push({ ...item, pecas: [] });
+                        else if (acc.length > 0) acc[acc.length - 1].pecas.push(item);
+                        return acc;
+                    }, []);
+
+                    pecasAgrupadas.forEach((grupo) => {
+                        if (lastY > 260) { doc.addPage(); lastY = 30; }
+                        doc.setFontSize(12); doc.setFont(undefined, "bold");
+                        let dimensoesTexto = grupo.isPecaAvulsa ? `(A:${grupo.A} L:${grupo.L} E:${grupo.espessura})` : (grupo.tipoModulo === "reto" ? `(A:${grupo.A} x L:${grupo.L} x P:${grupo.P})` : `(A:${grupo.A} LadoA:${grupo.LadoA} LadoB:${grupo.LadoB} ProfA:${grupo.ProfA} ProfB:${grupo.ProfB})`);
+                        doc.text(`${grupo.isPecaAvulsa ? 'Peça:' : 'Módulo:'} ${grupo.nome} ${dimensoesTexto}`, 14, lastY);
+                        let tableStartY = lastY + 7;
+
+                        if (grupo.imagem) {
+                            try {
+                                const imgWidth = 30, imgHeight = 30;
+                                const imgX = doc.internal.pageSize.getWidth() - 14 - imgWidth, imgY = lastY - 7;
+                                doc.addImage(grupo.imagem, "JPEG", imgX, imgY, imgWidth, imgHeight);
+                                tableStartY = Math.max(tableStartY, imgY + imgHeight + 2);
+                            } catch (e) { console.error("Erro ao adicionar imagem ao PDF:", e); }
+                        }
+
+                        const body = grupo.pecas.map(peca => {
+                            let bordasStr = [peca.bordaA1 && "A1", peca.bordaA2 && "A2", peca.bordaL1 && "L1", peca.bordaL2 && "L2"].filter(Boolean).join(" ");
+                            return [peca.nome, peca.qtd, formatarNumero(peca.alturaFinal), formatarNumero(peca.larguraFinal), peca.espessura, AppData.coresMDF[peca.corMaterial]?.nome || "N/A", bordasStr.trim(), AppData.coresBorda[peca.corBorda]?.nome || "N/A"];
+                        });
+                        doc.autoTable({ head: [["Nome Peça", "Qtd", "Altura", "Largura", "Esp.", "Material", "Bordas", "Cor Borda"]], body, startY: tableStartY, headStyles: { fillColor: [31, 41, 55] } });
+                        lastY = doc.lastAutoTable.finalY + 10;
+                    });
+
+                    if (lastY > 260) { doc.addPage(); lastY = 30; }
+                    doc.setFontSize(14); doc.text("Lista de Compras (Ferragens)", 14, lastY);
+                    const ferragensAgrupadasPDF = {};
+                    listaFerragensGerada.forEach((f) => { if (f && f.nome) { const key = `${f.nome}_${f.unidade}_${f.tipo}`; if (!ferragensAgrupadasPDF[key]) ferragensAgrupadasPDF[key] = { ...f, valor: 0 }; ferragensAgrupadasPDF[key].valor += f.valor; } });
+                    const ferragensBody = Object.values(ferragensAgrupadasPDF).map(f => {
+                         let displayName = f.nome;
+                         if (f.tipo === 'corredica') { const match = f.nome.match(/(\d+)mm/); if (match && match[1]) displayName = f.nome.replace(/\s?\d+mm$/, '').trim() + ` ${parseInt(match[1]) / 10}cm`; }
+                        return [displayName, `${f.valor.toFixed(f.unidade === 'UN' || f.unidade === 'PAR' ? 0 : 2)} ${f.unidade}`];
+                    });
+                    doc.autoTable({ head: [["Nome Ferragem", "Qtd/Medida"]], body: ferragensBody, startY: lastY + 7, headStyles: { fillColor: [31, 41, 55] }, });
+                    const nomeArquivo = `lista-producao-${(cliente + "_" + ambiente).replace(/\s/g, "_") || "geral"}.pdf`;
+                    doc.save(nomeArquivo);
+                };
+
+                const exportarPDFCliente = () => {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    const cliente = getEl("nomeCliente").value || "Não informado";
+                    const ambiente = getEl("nomeAmbiente").value || "Não especificado";
+                    const corExternaNome = AppData.coresMDF[getEl("projCorExterna").value]?.nome || "N/A";
+                    const corInternaNome = AppData.coresMDF[getEl("projCorInterna").value]?.nome || "N/A";
+                    const cores = `Cor Externa: ${corExternaNome} | Cor Interna: ${corInternaNome}`;
+
+                    doc.setFontSize(18); doc.setFont(undefined, "bold"); doc.text("Proposta de Orçamento", 14, 22);
+                    doc.setFontSize(11); doc.setFont(undefined, "normal"); doc.setTextColor(0, 0, 0);
+                    doc.text(`Cliente: ${cliente}`, 14, 30);
+                    doc.text(`Ambiente: ${ambiente}`, 14, 36);
+                    doc.text(cores, 14, 42);
+
+                    const bodyData = [];
+                    let totalFinal = 0;
+                    if (orcamentoFinalData.itensOrcamento) {
+                        Object.values(orcamentoFinalData.itensOrcamento).forEach(item => { bodyData.push([`${item.nome} ${item.dimensoes}`, `R$ ${item.valorVendaMaterial.toFixed(2)}`]); totalFinal += item.valorVendaMaterial; });
+                    }
+                    doc.autoTable({ head: [["Descrição do Item", "Valor"]], body: bodyData, startY: 50, theme: "striped", headStyles: { fillColor: [45, 55, 72] }, styles: { fontSize: 10 }, columnStyles: { 1: { halign: "right" } }, });
+                    let finalY = doc.lastAutoTable.finalY + 15;
+                    doc.setFontSize(16); doc.setFont(undefined, "bold"); doc.setTextColor(45, 55, 72);
+                    doc.text("VALOR TOTAL DO PROJETO:", 14, finalY);
+                    doc.text(`R$ ${totalFinal.toFixed(2)}`, 200, finalY, { align: "right" });
+                    finalY += 20;
+                    const termos = `Termos e Condições:\n1. O presente orçamento tem validade de 15 dias.\n2. Condições de pagamento: 50% de sinal e 50% na entrega.\n3. Prazo de entrega: 30 dias úteis após a confirmação do sinal.`;
+                    doc.setFontSize(10); doc.setTextColor(100); doc.text(termos, 14, finalY, { maxWidth: 180 });
+                    const nomeArquivo = `orcamento-${(cliente + "_" + ambiente).replace(/\s/g, "_") || "geral"}.pdf`;
+                    doc.save(nomeArquivo);
+                };
+
+                const exportarExcel = () => {
+                    const wb = XLSX.utils.book_new();
+                    const shoppingData = getShoppingListData();
+                    const shoppingListData = [];
+                    shoppingData.forEach(group => { shoppingListData.push([group.title, '']); group.items.forEach(item => { shoppingListData.push([item.name, item.quantity]); }); shoppingListData.push([]); });
+                    const wsShopping = XLSX.utils.aoa_to_sheet(shoppingListData);
+                    wsShopping["!cols"] = [{ wch: 40 }, { wch: 30 }];
+                    XLSX.utils.book_append_sheet(wb, wsShopping, "Lista de Compras");
+
+                    const pecasData = [["Nome Peça", "Qtd", "Altura", "Largura", "Espessura", "Material", "Bordas", "Cor Borda"]];
+                    listaPecasGerada.forEach((item) => {
+                        if (item.tipo === "header") pecasData.push([`Módulo: ${item.nome}`]);
+                        else {
+                            let bordasStr = [item.bordaA1 && "A1", item.bordaA2 && "A2", item.bordaL1 && "L1", item.bordaL2 && "L2"].filter(Boolean).join(" ");
+                            pecasData.push([item.nome, item.qtd, formatarNumero(item.alturaFinal), formatarNumero(item.larguraFinal), item.espessura, AppData.coresMDF[item.corMaterial]?.nome || "N/A", bordasStr.trim(), AppData.coresBorda[item.corBorda]?.nome || "N/A"]);
+                        }
+                    });
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pecasData), "Plano de Corte");
+
+                    const ferragensData = [["Nome Ferragem", "Qtd/Medida", "Unidade", "Preço Unit/M", "Preço Total"]];
+                    const excelFerragensAgrupadas = {};
+                    listaFerragensGerada.forEach(f => { if (f && f.nome) { const key = `${f.nome}_${f.unidade}_${f.tipo}`; if (!excelFerragensAgrupadas[key]) excelFerragensAgrupadas[key] = { ...f, valor: 0 }; excelFerragensAgrupadas[key].valor += f.valor; } });
+                    Object.values(excelFerragensAgrupadas).forEach((f) => {
+                        let displayName = f.nome;
+                        if (f.tipo === 'corredica') { const match = f.nome.match(/(\d+)mm/); if (match && match[1]) displayName = f.nome.replace(/\s?\d+mm$/, '').trim() + ` ${parseInt(match[1]) / 10}cm`; }
+                        ferragensData.push([displayName, f.valor.toFixed(f.unidade === "UN" || f.unidade === "PAR" ? 0 : 2), f.unidade, `R$ ${f.preco.toFixed(2)}`, `R$ ${(f.valor * f.preco).toFixed(2)}`]);
+                    });
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ferragensData), "Lista de Ferragens");
+                    const cliente = getEl("nomeCliente").value.replace(/\s/g, "_") || "geral";
+                    const ambiente = getEl("nomeAmbiente").value.replace(/\s/g, "_");
+                    const nomeArquivo = `listagem-completa-${cliente}${ambiente ? '-' + ambiente : ''}.xlsx`;
+                    XLSX.writeFile(wb, nomeArquivo);
+                };
+
+                const exportarParaCortcloud = () => {
+                    if (listaPecasGerada.length === 0) return showToast("Primeiro, gere a listagem de peças.", "error");
+                    let fileContent = ""; const espessuraFitaBorda = "0.4";
+                    const cliente = getEl("nomeCliente").value.replace(/\s/g, "_") || "Projeto_Geral";
+                    const ambiente = getEl("nomeAmbiente").value.replace(/\s/g, "_");
+                    const infoCliente = `${cliente}${ambiente ? '_' + ambiente : ''}`;
+                    
+                    listaPecasGerada.forEach((item) => {
+                        if (item.tipo === "header") return;
+                        const corMaterialNome = AppData.coresMDF[item.corMaterial]?.nome || item.corMaterial;
+                        const linha = [`1.0000.${item.espessura}.${corMaterialNome.replace(/\s/g, "")}.MDF`, item.nome, formatarNumero(item.alturaFinal), formatarNumero(item.larguraFinal), item.qtd, infoCliente, item.bordaA1 ? espessuraFitaBorda : "0", item.bordaA2 ? espessuraFitaBorda : "0", item.bordaL1 ? espessuraFitaBorda : "0", item.bordaL2 ? espessuraFitaBorda : "0", `MDF-${item.espessura}-${corMaterialNome.replace(/\s/g, "_")}`, ""].join(";");
+                        fileContent += linha + "\n";
+                    });
+                    const blob = new Blob([fileContent], { type: "text/plain;charset=utf-8" });
+                    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `cortcloud_${infoCliente}_${new Date().getTime()}.txt`; document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
+                    showToast("Arquivo para Cortcloud gerado!", "success");
+                };
+
+                const toggleHardwarePriceFields = () => {
+                    const unidade = getEl("novaFerragemUnidade").value; const show = unidade === "M";
+                    getEl("campos-preco-barra-ferragem").style.display = show ? "grid" : "none";
+                    getEl("labelPrecoFinalFerragem").textContent = show ? "Preço Final por Metro (R$/m)" : "Preço (R$)";
+                };
+
+                const calcularPrecoMetroFerragem = () => {
+                    const precoBarra = parseFloat(getEl("novaFerragemPrecoBarra").value), metragemBarra = parseFloat(getEl("novaFerragemMetragemBarra").value), campoFinal = getEl("novaFerragemPreco");
+                    if (!isNaN(precoBarra) && !isNaN(metragemBarra) && metragemBarra > 0) campoFinal.value = (precoBarra / metragemBarra).toFixed(2);
+                    else campoFinal.value = "";
+                };
+
+                const resetHardwareForm = () => {
+                    editingHardwareKey = null; getEl("ferragem-form-titulo").textContent = "Adicionar Nova Ferragem"; getEl("novaFerragemNome").value = ""; getEl("novaFerragemNome").readOnly = false; getEl("novaFerragemUnidade").value = "UN"; getEl("novaFerragemTipo").value = "geral"; getEl("novaFerragemUnidade").disabled = false; getEl("novaFerragemPreco").value = ""; getEl("novaFerragemPrecoBarra").value = ""; getEl("novaFerragemMetragemBarra").value = ""; getEl("btnSalvarFerragem").textContent = "Adicionar"; getEl("btnSalvarFerragem").classList.replace("btn-success", "btn-primary"); getEl("btnCancelarEdicaoFerragem").style.display = "none"; getEl("novaFerragemPreview").src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; currentImage.hardware = null; toggleHardwarePriceFields();
+                };
+
+                const resetMaterialForm = () => {
+                    editingMaterialKey = null; editingMaterialType = null; getEl("material-form-titulo").textContent = "Adicionar Novo Material"; getEl("novoMaterialTipo").disabled = false; getEl("novoMaterialNome").readOnly = false; getEl("novoMaterialNome").value = ""; getEl("novoMaterialPrecoChapa").value = ""; getEl("novoMaterialPrecoCalculado").value = ""; getEl("novoMaterialPrecoRoloBorda").value = ""; getEl("novoMaterialMetragemRoloBorda").value = ""; getEl("novoMaterialPrecoFinalBorda").value = ""; getEl("btnAddMaterial").textContent = "Adicionar ao Catálogo"; getEl("btnAddMaterial").classList.replace("btn-success", "btn-primary"); getEl("btnCancelarEdicaoMaterial").style.display = "none"; getEl("novoMaterialPreview").src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; currentImage.material = null; toggleMaterialPriceFields();
+                };
+
+                const carregarMaterialParaEdicao = (key, type) => {
+                    const item = AppData[type][key]; if (!item) return; resetMaterialForm(); editingMaterialKey = key; editingMaterialType = type;
+                    getEl("novoMaterialTipo").value = type === "coresMDF" ? "mdf" : "borda"; getEl("novoMaterialTipo").disabled = true; toggleMaterialPriceFields();
+                    getEl("novoMaterialNome").value = item.nome; getEl("novoMaterialNome").readOnly = true; getEl("novoMaterialPreview").src = item.imagem || "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; currentImage.material = item.imagem;
+                    if (type === "coresMDF") { getEl("novoMaterialPrecoChapa").value = item.precoChapa ? item.precoChapa.toFixed(2) : ""; getEl("novoMaterialPrecoCalculado").value = item.preco ? item.preco.toFixed(2) : ""; } else { getEl("novoMaterialPrecoFinalBorda").value = item.preco.toFixed(2); }
+                    getEl("material-form-titulo").textContent = `Editando: ${item.nome}`; getEl("btnAddMaterial").textContent = "Salvar Alterações"; getEl("btnAddMaterial").classList.replace("btn-primary", "btn-success"); getEl("btnCancelarEdicaoMaterial").style.display = "inline-flex";
+                };
+
+                const carregarFerragemParaEdicao = (key) => {
+                    const ferragem = AppData.catalogoFerragens[key]; if (!ferragem) return; resetHardwareForm(); editingHardwareKey = key; getEl("ferragem-form-titulo").textContent = `Editando: ${ferragem.nome}`; getEl("novaFerragemNome").value = ferragem.nome; getEl("novaFerragemNome").readOnly = false; getEl("novaFerragemTipo").value = ferragem.tipo || 'geral'; getEl("novaFerragemUnidade").value = ferragem.unidade; getEl("novaFerragemUnidade").disabled = false; getEl("novaFerragemPreco").value = ferragem.preco; getEl("novaFerragemPreview").src = ferragem.imagem || "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; currentImage.hardware = ferragem.imagem; getEl("btnSalvarFerragem").textContent = "Salvar Alterações"; getEl("btnSalvarFerragem").classList.replace("btn-primary", "btn-success"); getEl("btnCancelarEdicaoFerragem").style.display = "inline-flex"; toggleHardwarePriceFields();
+                };
+
+                const calcularPrecoMetroPerfil = () => {
+                    const precoBarra = parseFloat(getEl("novoPerfilPrecoBarra").value), metragemBarra = parseFloat(getEl("novoPerfilMetragemBarra").value), campoFinal = getEl("novoPerfilPrecoMetro");
+                    if (!isNaN(precoBarra) && !isNaN(metragemBarra) && metragemBarra > 0) campoFinal.value = (precoBarra / metragemBarra).toFixed(2); else campoFinal.value = "";
+                };
+
+                const resetProfileForm = () => {
+                    editingProfileKey = null; getEl("perfil-form-titulo").textContent = "Adicionar Novo Perfil"; getEl("novoPerfilNome").value = ""; getEl("novoPerfilNome").readOnly = false; getEl("novoPerfilPrecoBarra").value = ""; getEl("novoPerfilMetragemBarra").value = ""; getEl("novoPerfilPrecoMetro").value = ""; getEl("novoPerfilPreview").src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; currentImage.profile = null; getEl("btnSalvarPerfil").textContent = "Adicionar"; getEl("btnSalvarPerfil").classList.replace("btn-success", "btn-primary"); getEl("btnCancelarEdicaoPerfil").style.display = "none";
+                };
+
+                const carregarPerfilParaEdicao = (key) => {
+                    const perfil = AppData.catalogoPerfis[key]; if (!perfil) return; resetProfileForm(); editingProfileKey = key; getEl("perfil-form-titulo").textContent = `Editando: ${perfil.nome}`; getEl("novoPerfilNome").value = perfil.nome; getEl("novoPerfilNome").readOnly = true; getEl("novoPerfilPrecoBarra").value = perfil.precoBarra; getEl("novoPerfilMetragemBarra").value = perfil.metragemBarra; getEl("novoPerfilPrecoMetro").value = perfil.preco.toFixed(2); getEl("novoPerfilPreview").src = perfil.imagem || "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; currentImage.profile = perfil.imagem; getEl("btnSalvarPerfil").textContent = "Salvar Alterações"; getEl("btnSalvarPerfil").classList.replace("btn-primary", "btn-success"); getEl("btnCancelarEdicaoPerfil").style.display = "inline-flex";
+                };
+
+                const resetPecaPredefinidaForm = () => {
+                    editingPecaKey = null; getEl("peca-form-titulo").textContent = "Nova Peça Padrão"; getEl("novaPecaNome").value = ""; getEl("novaPecaQtd").value = "1"; getEl("novaPecaAltura").value = ""; getEl("novaPecaLargura").value = ""; getEl("novaPecaTipoMaterial").value = "interna"; getEl("novaPecaTipoBorda").value = "interna";
+                    const btnSalvarPeca = getEl("btnSalvarPecaCatalogo"); btnSalvarPeca.textContent = "Adicionar Peça ao Catálogo"; btnSalvarPeca.classList.replace("btn-success", "btn-primary"); getEl("btnCancelarEdicaoPeca").style.display = "none";
+                };
+
+                const carregarPecaPredefinidaParaEdicao = (key) => {
+                    const peca = AppData.pecasPredefinidas[key]; if (!peca) return; resetPecaPredefinidaForm(); editingPecaKey = key;
+                    getEl("peca-form-titulo").textContent = `Editando: ${peca.nome}`; getEl("novaPecaNome").value = peca.nome; getEl("novaPecaQtd").value = peca.qtd; getEl("novaPecaAltura").value = peca.altura; getEl("novaPecaLargura").value = peca.largura; getEl("novaPecaTipoMaterial").value = peca.tipoMaterial; getEl("novaPecaTipoBorda").value = peca.tipoBorda;
+                    getEl("btnSalvarPecaCatalogo").textContent = "Salvar Alterações"; getEl("btnSalvarPecaCatalogo").classList.replace("btn-primary", "btn-success"); getEl("btnCancelarEdicaoPeca").style.display = "inline-flex";
+                };
+
+                const toggleMaterialPriceFields = () => {
+                    const tipo = getEl("novoMaterialTipo").value;
+                    getEl("campos-preco-mdf").style.display = tipo === "mdf" ? "grid" : "none";
+                    getEl("campos-preco-borda").style.display = tipo === "borda" ? "grid" : "none";
+                };
+
+                const atualizarTodosOsHelpersNoModal = (tipoModulo) => {
+                    const isReto = tipoModulo === "reto";
+                    const baseVars = isReto ? "A, L, P" : "A, LadoA, LadoB, ProfA, ProfB";
+                    const otherVars = `MedidaCorredica, EspInterna, EspExterna, DescFundoArmario, FolgaPortaAltura, FolgaPortaLargura, FolgaCorredicaFrente, FolgaCorredicaFundo, AjustePuxadorAltura, AjustePuxadorLargura, DescontoPerfilAltura, DescontoPerfilLargura, DescAlturaBaseGavTelescopica, DescAlturaLateralGavTelescopica, DescAlturaBaseGavInvisivel, DescAlturaLateralGavInvisivel, FolgaGavetaCorredica, DescFundoGavetaCorredica, RecuoFrenteGavetaCorredica`;
+                    
+                    document.querySelectorAll(".formula-helper-altura").forEach(el => el.textContent = `Variáveis: ${baseVars}, ${otherVars}`);
+                    document.querySelectorAll(".formula-helper-largura").forEach(el => el.textContent = `Variáveis: ${baseVars}, ${otherVars}`);
+                    
+                    const ferragensHelper = document.querySelector('#modal-modulo .ferragens-associadas-section .formula-helper');
+                    if (ferragensHelper) {
+                        ferragensHelper.textContent = `Use 'A', 'L', 'QTD' (qtd da peça), 'P' (profundidade do módulo), 'LadoA', 'LadoB', 'ProfA', 'ProfB', MedidaCorredica, DescAlturaBaseGav, DescAlturaLateralGav nas fórmulas.`;
+                    }
+                };
+
+                // --- INICIALIZAÇÃO E EVENT LISTENERS ---
+
+                const abrirModal = (modalId) => getEl(modalId).classList.add("active");
+                const fecharModal = (modalId) => getEl(modalId).classList.remove("active");
+
+                getEl("btnAbrirModalModulo").addEventListener("click", () => { resetModuleCreatorForm(); abrirModal("modal-modulo"); });
+                getEl("btnAbrirModalCatalogo").addEventListener("click", () => { resetHardwareForm(); resetMaterialForm(); resetProfileForm(); resetPecaPredefinidaForm(); abrirModal("modal-catalogo"); });
+                getEl("btnAbrirModalConfig").addEventListener("click", () => abrirModal("modal-config"));
+                getEl("btnAbrirModalRipado").addEventListener("click", () => abrirModal("modal-ripado"));
+                getEl("btnAbrirModalVisualizarCatalogo").addEventListener("click", () => { popularModalCatalogoCompleto(); abrirModal("modal-visualizar-catalogo"); });
+                getEl("btnAbrirModalGerenciarModulos").addEventListener("click", () => {
+                    const container = getEl("lista-modulos-salvos"); container.innerHTML = "";
+                    if(AppData.catalogoModulos) {
+                        AppData.catalogoModulos.forEach((modulo) => {
+                            const div = document.createElement("div"); div.className = "catalogo-item catalogo-item-com-imagem"; div.dataset.filterName = `${modulo.nome} ${modulo.categoria}`.toLowerCase();
+                            div.innerHTML = `<img src="${modulo.imagem || "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="}" alt="Miniatura do módulo"><span>${modulo.categoria ? `[${modulo.categoria}] ` : ""}${modulo.nome}</span><div class="botoes-acao" style="margin-top:0; flex-wrap: nowrap;"><button class="btn-warning btn-sm btn-edit-modulo" data-id="${modulo.id}">Editar</button><button class="btn-danger btn-sm btn-delete-modulo" data-id="${modulo.id}">Excluir</button></div>`;
+                            container.appendChild(div);
+                        });
+                    }
+                    abrirModal("modal-gerenciar-modulos");
+                });
+
+                document.querySelectorAll(".modal-close").forEach((btn) => btn.addEventListener("click", () => fecharModal(btn.dataset.modalId)));
+                getEl("lista-modulos-salvos").addEventListener("click", (e) => {
+                    const target = e.target.closest("button"); if (!target) return; const moduloId = parseInt(target.dataset.id);
+                    if (target.matches(".btn-edit-modulo")) carregarModuloParaEdicao(moduloId);
+                    if (target.matches(".btn-delete-modulo") && confirm("Tem certeza que deseja excluir este módulo?")) { AppData.catalogoModulos = AppData.catalogoModulos.filter(m => m.id !== moduloId); salvarDados(); popularTodosSeletores(); target.closest(".catalogo-item").remove(); showToast("Módulo excluído.", "success"); }
+                });
+                pecasContainer.addEventListener('click', (e) => { const removeBtn = e.target.closest('.btn-remover-peca'); if (removeBtn) removeBtn.closest('.peca-item-wrapper').remove(); });
+
+                const handleCatalogClick = (e) => {
+                    const target = e.target.closest("button"); if (!target) return; const key = target.dataset.key, type = target.dataset.type;
+                    if (target.matches(".btn-delete") && confirm("Tem certeza?")) { if (AppData[type] && AppData[type][key]) { delete AppData[type][key]; salvarDados(); popularTodosSeletores(); resetMaterialForm(); resetHardwareForm(); resetProfileForm(); resetPecaPredefinidaForm(); showToast("Item excluído.", "success"); } }
+                    else if (target.matches(".btn-edit-material")) carregarMaterialParaEdicao(key, type); else if (target.matches(".btn-edit-ferragem")) carregarFerragemParaEdicao(key); else if (target.matches(".btn-edit-perfil")) carregarPerfilParaEdicao(key); else if (target.matches(".btn-edit-peca")) carregarPecaPredefinidaParaEdicao(key);
+                };
+                ["listaCoresMDF", "listaCoresBorda", "listaFerragensCatalogo", "listaPecasPredefinidas", "listaPerfisPuxador"].forEach(id => getEl(id).addEventListener("click", handleCatalogClick));
+                getEl("novoMaterialTipo").addEventListener("change", toggleMaterialPriceFields);
+                const calcularPrecoMetroBorda = () => { const precoRolo = parseFloat(getEl("novoMaterialPrecoRoloBorda").value), metragemRolo = parseFloat(getEl("novoMaterialMetragemRoloBorda").value), campoFinal = getEl("novoMaterialPrecoFinalBorda"); if (!isNaN(precoRolo) && !isNaN(metragemRolo) && metragemRolo > 0) campoFinal.value = (precoRolo / metragemRolo).toFixed(2); };
+                getEl("novoMaterialPrecoRoloBorda").addEventListener("input", calcularPrecoMetroBorda); getEl("novoMaterialMetragemRoloBorda").addEventListener("input", calcularPrecoMetroBorda);
+                getEl("novoMaterialPrecoFinalBorda").addEventListener("input", () => { getEl("novoMaterialPrecoRoloBorda").value = ""; getEl("novoMaterialMetragemRoloBorda").value = ""; });
+                getEl("novoMaterialPrecoChapa").addEventListener("input", () => { const precoChapa = parseFloat(getEl("novoMaterialPrecoChapa").value), { chapaAltura, chapaLargura } = AppData.configCalculo, campoCalculado = getEl("novoMaterialPrecoCalculado"); if (isNaN(precoChapa) || !chapaAltura || !chapaLargura) { campoCalculado.value = ""; return; } const areaChapa = (chapaAltura / 1000) * (chapaLargura / 1000); if (areaChapa > 0) campoCalculado.value = (precoChapa / areaChapa).toFixed(2); else campoCalculado.value = ""; });
+                getEl("btnCancelarEdicaoMaterial").addEventListener("click", resetMaterialForm);
+                getEl("btnAddMaterial").addEventListener("click", () => {
+                    if (editingMaterialKey && editingMaterialType) {
+                        const item = AppData[editingMaterialType][editingMaterialKey];
+                        if (editingMaterialType === "coresMDF") { const precoChapa = parseFloat(getEl("novoMaterialPrecoChapa").value); if(isNaN(precoChapa)) return showToast("Preço inválido.", "error"); item.precoChapa = precoChapa; }
+                        else { const preco = parseFloat(getEl("novoMaterialPrecoFinalBorda").value); if(isNaN(preco)) return showToast("Preço inválido.", "error"); item.preco = preco; }
+                        item.imagem = currentImage.material; recalculateAllMdfPrices(); salvarDados(); popularTodosSeletores(); showToast(`Material "${item.nome}" atualizado!`); resetMaterialForm();
+                    } else {
+                        const tipo = getEl("novoMaterialTipo").value, nome = getEl("novoMaterialNome").value.trim(); if (!nome) return showToast("Nome é obrigatório.", "error");
+                        const key = createKeyFromName(nome), catalogo = tipo === "mdf" ? AppData.coresMDF : AppData.coresBorda; if (catalogo[key]) return showToast("Material já existe.", "error");
+                        if (tipo === "mdf") { const precoChapa = parseFloat(getEl("novoMaterialPrecoChapa").value); if(isNaN(precoChapa)) return showToast("Preço inválido.", "error"); catalogo[key] = { nome, precoChapa, imagem: currentImage.material }; }
+                        else { const preco = parseFloat(getEl("novoMaterialPrecoFinalBorda").value); if(isNaN(preco)) return showToast("Preço inválido.", "error"); catalogo[key] = { nome, preco, imagem: currentImage.material }; }
+                        recalculateAllMdfPrices(); salvarDados(); popularTodosSeletores(); showToast(`"${nome}" adicionado!`); resetMaterialForm();
+                    }
+                });
+                getEl("btnSalvarFerragem").addEventListener("click", () => {
+                    const nome = getEl("novaFerragemNome").value.trim(), preco = parseFloat(getEl("novaFerragemPreco").value), unidade = getEl("novaFerragemUnidade").value, tipo = getEl("novaFerragemTipo").value;
+                    if (!nome || isNaN(preco) || preco < 0) return showToast("Preencha nome e preço válido.", "error");
+                    const ferragemData = { nome, preco, unidade, tipo, imagem: currentImage.hardware };
+                    if (editingHardwareKey) { const f = AppData.catalogoFerragens[editingHardwareKey]; f.nome = nome; f.preco = preco; f.unidade = unidade; f.tipo = tipo; f.imagem = currentImage.hardware; showToast(`"${nome}" atualizada!`); }
+                    else { const newKey = createKeyFromName(nome); if (AppData.catalogoFerragens[newKey]) return showToast("Ferragem já existe.", "error"); AppData.catalogoFerragens[newKey] = ferragemData; showToast(`"${nome}" adicionada!`); }
+                    salvarDados(); popularTodosSeletores(); resetHardwareForm();
+                });
+                getEl("novaFerragemUnidade").addEventListener("change", toggleHardwarePriceFields); getEl("novaFerragemPrecoBarra").addEventListener("input", calcularPrecoMetroFerragem); getEl("novaFerragemMetragemBarra").addEventListener("input", calcularPrecoMetroFerragem); getEl("btnCancelarEdicaoFerragem").addEventListener("click", resetHardwareForm);
+                getEl("btnSalvarPerfil").addEventListener("click", () => {
+                    const nome = getEl("novoPerfilNome").value.trim(), precoBarra = parseFloat(getEl("novoPerfilPrecoBarra").value), metragemBarra = parseFloat(getEl("novoPerfilMetragemBarra").value), preco = parseFloat(getEl("novoPerfilPrecoMetro").value);
+                    if (!nome || isNaN(precoBarra) || isNaN(metragemBarra) || isNaN(preco)) return showToast("Preencha todos os campos.", "error");
+                    const perfilData = { nome, precoBarra, metragemBarra, preco, imagem: currentImage.profile };
+                    if (editingProfileKey) { const p = AppData.catalogoPerfis[editingProfileKey]; p.nome = nome; p.precoBarra = precoBarra; p.metragemBarra = metragemBarra; p.preco = preco; p.imagem = currentImage.profile; showToast(`Perfil "${nome}" atualizado!`); }
+                    else { const newKey = createKeyFromName(nome); if (AppData.catalogoPerfis[newKey]) return showToast("Perfil já existe.", "error"); AppData.catalogoPerfis[newKey] = perfilData; showToast(`Perfil "${nome}" adicionada!`); }
+                    salvarDados(); popularTodosSeletores(); resetProfileForm();
+                });
+                getEl("novoPerfilPrecoBarra").addEventListener("input", calcularPrecoMetroPerfil); getEl("novoPerfilMetragemBarra").addEventListener("input", calcularPrecoMetroPerfil); getEl("btnCancelarEdicaoPerfil").addEventListener("click", resetProfileForm);
+                getEl("btnAdicionarPeca").addEventListener("click", () => adicionarNovaPeca());
+                getEl("btnAdicionarFerragemModulo").addEventListener("click", () => { const select = getEl("moduloFerragemSelect"), valorInput = getEl("moduloFerragemValor"), key = select.value, valor = parseFloat(valorInput.value); if (!key || !valor || valor <= 0) return showToast("Selecione uma ferragem e um valor válido.", "error"); adicionarFerragemAoModuloUI({ key, valor }); select.value = ""; valorInput.value = ""; });
+                getEl("pecas-predefinidas").addEventListener("change", (e) => { if (e.target.value) { adicionarNovaPeca(AppData.pecasPredefinidas[e.target.value]); e.target.value = ""; } });
+                getEl("btnSalvarPecaCatalogo").addEventListener("click", () => {
+                    const novaPeca = { nome: getEl("novaPecaNome").value.trim(), qtd: getEl("novaPecaQtd").value, altura: getEl("novaPecaAltura").value.trim(), largura: getEl("novaPecaLargura").value.trim(), tipoMaterial: getEl("novaPecaTipoMaterial").value, tipoBorda: getEl("novaPecaTipoBorda").value, };
+                    if (!novaPeca.nome) return showToast("O nome é obrigatório.", "error");
+                    if (editingPecaKey) { AppData.pecasPredefinidas[editingPecaKey] = { ...AppData.pecasPredefinidas[editingPecaKey], ...novaPeca }; showToast(`Peça "${novaPeca.nome}" atualizada!`); }
+                    else { const key = createKeyFromName(nome); if (AppData.pecasPredefinidas[key]) return showToast("Peça já existe.", "error"); AppData.pecasPredefinidas[key] = novaPeca; showToast("Peça adicionada!", "success"); }
+                    salvarDados(); popularTodosSeletores(); resetPecaPredefinidaForm();
+                });
+                getEl("btnCancelarEdicaoPeca").addEventListener("click", resetPecaPredefinidaForm);
+                getEl("btnGerarRipado").addEventListener("click", () => { const larguraRipa = parseFloat(getEl("ripadoLarguraRipa").value), espacamento = parseFloat(getEl("ripadoEspacamento").value); if (isNaN(larguraRipa) || isNaN(espacamento) || larguraRipa <= 0 || espacamento < 0) return showToast("Valores inválidos.", "error"); if (getEl("ripadoIncluirFundo").checked) adicionarNovaPeca({ nome: "Fundo do Painel", qtd: "1", altura: "A", largura: "L", tipoMaterial: "externa", tipoBorda: "externa" }); adicionarNovaPeca({ nome: "Ripa", qtd: `L / (${larguraRipa} + ${espacamento})`, altura: "A", largura: String(larguraRipa), tipoMaterial: "externa", tipoBorda: "externa", bordaA1: true, bordaA2: true }); fecharModal("modal-ripado"); showToast("Peças do painel ripado adicionadas!", "success"); });
+                getEl("btnSalvarModulo").addEventListener("click", salvarModulo);
+                
+                getEl("btnAdicionarModulo").addEventListener("click", () => {
+                    const selectedValue = catalogoModulosTrigger.dataset.value;
+                    if (!selectedValue) return showToast("Selecione um módulo ou peça.", "error");
+
+                    const corMaterialInternaKey = getEl("projCorInterna").value;
+                    const corMaterialExternaKey = getEl("projCorExterna").value;
+                    if (!corMaterialInternaKey || !corMaterialExternaKey) return showToast("Selecione as cores de material interna e externa.", "error");
+
+                    const tipoModulo = getEl("tipoModuloProjeto").value;
+                    let dimensions = {};
+
+                    if(tipoModulo === 'reto'){
+                        const A = parseFloat(getEl("projAltura").value) || 0;
+                        const L = parseFloat(getEl("projLargura").value) || 0;
+                        const P = parseFloat(getEl("projProfundidade").value) || 0;
+                        if ((selectedValue !== '_peca_avulsa_' && (!A || !L || !P)) || (selectedValue === '_peca_avulsa_' && (!A || !L))) {
+                           return showToast("Preencha as dimensões necessárias.", "error");
+                        }
+                        dimensions = { altura: A, largura: L, profundidade: P, espessura: P };
+                    } else {
+                        const A = parseFloat(getEl("projAlturaCanto").value) || 0,
+                            LadoA = parseFloat(getEl("projLadoA").value) || 0,
+                            LadoB = parseFloat(getEl("projLadoB").value) || 0,
+                            ProfA = parseFloat(getEl("projProfA").value) || 0,
+                            ProfB = parseFloat(getEl("projProfB").value) || 0;
+                        if (!A || !LadoA || !LadoB || !ProfA || !ProfB) return showToast("Preencha todas as dimensões do módulo de canto.", "error");
+                        dimensions = { altura: A, ladoA: LadoA, ladoB: LadoB, profA: ProfA, profB: ProfB };
+                    }
+
+                    moduloTemporario = {
+                        selectedValue,
+                        corMaterialInternaKey,
+                        corMaterialExternaKey,
+                        tipoPuxador: getEl("moduloTipoPuxador").value,
+                        tipoModulo,
+                        dimensions
+                    };
+
+                    const moduloBase = AppData.catalogoModulos.find(m => m.id == parseInt(selectedValue));
+                    const isDrawerModule = moduloBase && moduloBase.pecas.some(p => p.nome.toLowerCase().includes('gaveta'));
+                    
+                    if (isDrawerModule) {
+                        abrirModal('modal-escolher-corredica');
+                    } else {
+                        moduloTemporario.tipoCorredica = 'telescopica';
+                        const isDoorModule = moduloBase && moduloBase.pecas.some(p => p.nome.toLowerCase().includes('porta'));
+                        if (isDoorModule) {
+                            abrirModal('modal-escolher-dobradica');
+                        } else {
+                            moduloTemporario.tipoDobradica = 'reta';
+                            finalizarAdicaoModulo();
+                        }
+                    }
+                });
+                
+                getEl('btnEscolherTelescopica').addEventListener('click', () => {
+                    if(!moduloTemporario) return;
+                    moduloTemporario.tipoCorredica = 'telescopica';
+                    fecharModal('modal-escolher-corredica');
+                    const moduloBase = AppData.catalogoModulos.find(m => m.id == parseInt(moduloTemporario.selectedValue));
+                    const isDoorModule = moduloBase && moduloBase.pecas.some(p => p.nome.toLowerCase().includes('porta'));
+                    if (isDoorModule) {
+                        abrirModal('modal-escolher-dobradica');
+                    } else {
+                        moduloTemporario.tipoDobradica = 'reta';
+                        finalizarAdicaoModulo();
+                    }
+                });
+
+                getEl('btnEscolherInvisivel').addEventListener('click', () => {
+                    if(!moduloTemporario) return;
+                    moduloTemporario.tipoCorredica = 'invisivel';
+                    fecharModal('modal-escolher-corredica');
+                    const moduloBase = AppData.catalogoModulos.find(m => m.id == parseInt(moduloTemporario.selectedValue));
+                    const isDoorModule = moduloBase && moduloBase.pecas.some(p => p.nome.toLowerCase().includes('porta'));
+                    if (isDoorModule) {
+                        abrirModal('modal-escolher-dobradica');
+                    } else {
+                        moduloTemporario.tipoDobradica = 'reta';
+                        finalizarAdicaoModulo();
+                    }
+                });
+
+                getEl('btnEscolherReta').addEventListener('click', () => {
+                    if(!moduloTemporario) return;
+                    moduloTemporario.tipoDobradica = 'reta';
+                    fecharModal('modal-escolher-dobradica');
+                    finalizarAdicaoModulo();
+                });
+
+                getEl('btnEscolherCurva').addEventListener('click', () => {
+                    if(!moduloTemporario) return;
+                    moduloTemporario.tipoDobradica = 'curva';
+                    fecharModal('modal-escolher-dobradica');
+                    finalizarAdicaoModulo();
+                });
+
+
+                getEl("btnAdicionarFerragemExtra").addEventListener("click", adicionarFerragemExtra);
+                listaResumo.addEventListener("click", (e) => { if (e.target.matches(".btn-danger")) removerItemDoProjeto(e.target.dataset.instanceId); });
+                getEl("btnGerarListagem").addEventListener("click", gerarListagem);
+                listaPecasTbody.addEventListener("click", (e) => { if (e.target.matches(".btn-remover-peca-final")) { listaPecasGerada = listaPecasGerada.filter((p) => p.id !== e.target.dataset.id); renderizarTabelasEOrcamento(); showToast("Peça removida.", "success"); } });
+                listaFerragensTbody.addEventListener("click", (e) => { if (e.target.matches(".btn-remover-ferragem-final")) { const ids = e.target.dataset.ids.split(","); listaFerragensGerada = listaFerragensGerada.filter((f) => !ids.includes(f.id)); renderizarTabelasEOrcamento(); showToast("Ferragem removida.", "success"); } });
+                catalogoModulosTrigger.addEventListener('click', () => catalogoModulosContainer.classList.toggle('active'));
+                window.addEventListener('click', (e) => { if (!catalogoModulosContainer.contains(e.target)) catalogoModulosContainer.classList.remove('active'); });
+                catalogoModulosOptions.addEventListener('click', (e) => {
+                    const li = e.target.closest('li:not(.optgroup-header)'); if (!li) return;
+                    catalogoModulosTrigger.dataset.value = li.dataset.value; catalogoModulosTrigger.querySelector('.selected-text').textContent = li.querySelector('span').textContent; getEl('imagemModuloPreviewProjeto').src = li.dataset.imgSrc || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='; catalogoModulosContainer.classList.remove('active');
+                    const isPecaAvulsa = li.dataset.value === '_peca_avulsa_';
+                    getEl('labelProjAltura').textContent = isPecaAvulsa ? 'Altura da Peça (mm)' : 'Altura Final (A) em mm';
+                    getEl('labelProjLargura').textContent = isPecaAvulsa ? 'Largura da Peça (mm)' : 'Largura Final (L) em mm';
+                    getEl('labelProjProfundidade').textContent = isPecaAvulsa ? 'Espessura da Peça (mm)' : 'Profundidade Final (P) em mm';
+                    getEl('tipoModuloProjeto').style.display = isPecaAvulsa ? 'none' : 'block';
+                    getEl('labelTipoModuloProjeto').style.display = isPecaAvulsa ? 'none' : 'block';
+                });
+                document.addEventListener("click", (e) => { if (e.target.matches(".item-preview")) e.target.nextElementSibling.click(); });
+                document.querySelectorAll(".imagem-input").forEach(input => input.addEventListener("change", event => {
+                    const file = event.target.files[0], preview = event.target.previousElementSibling, form = event.target.closest("fieldset") || event.target.closest(".modal-body"); if (!file || !form) return;
+                    const reader = new FileReader();
+                    reader.onload = e => { const base64 = e.target.result; preview.src = base64; if (form.querySelector("#nomeModulo")) imagemModuloBase64 = base64; if (form.querySelector("#novoMaterialNome")) currentImage.material = base64; if (form.querySelector("#novaFerragemNome")) currentImage.hardware = base64; if (form.querySelector("#novoPerfilNome")) currentImage.profile = base64; };
+                    reader.readAsDataURL(file); event.target.value = "";
+                }));
+                getEl("btnExportarProducao").addEventListener("click", exportarPDFProducao); 
+                getEl("btnGerarPreContrato").addEventListener("click", exportarPDFCliente); 
+                getEl("btnExportarExcel").addEventListener("click", exportarExcel); 
+                getEl("btnExportarCortcloud").addEventListener("click", exportarParaCortcloud); 
+                getEl("btnExportarDados").addEventListener("click", exportarDados);
+                
+                const importarDadosHandler = (event) => {
+                    const fileInput = event.target;
+                    const file = fileInput.files[0];
+                    if (!file) { fileInput.value = ""; return; }
+                    if (!confirm("IMPORTANTE: Isso substituirá TODOS os seus dados salvos neste navegador. Deseja continuar?")) { fileInput.value = ""; return; }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            if (!importedData.catalogoModulos || !importedData.coresMDF) {
+                                throw new Error("Arquivo de backup inválido.");
+                            }
+
+                            // Limpa o storage antigo antes de tentar salvar o novo
+                            Object.keys(localStorage).forEach(key => {
+                                if (key.startsWith('marcenaria_pro_')) localStorage.removeItem(key);
+                            });
+
+                            // Tenta salvar os novos dados um a um
+                            Object.keys(importedData).forEach(key => {
+                                localStorage.setItem(`marcenaria_pro_${key}`, JSON.stringify(importedData[key]));
+                            });
+
+                            showToast("Dados importados com sucesso! A página será recarregada.", "success");
+                            setTimeout(() => window.location.reload(), 2000);
+
+                        } catch (err) {
+                            if (err.name === 'QuotaExceededError') {
+                                showToast("Erro: Limite de armazenamento do navegador excedido! O backup é muito grande.", "error");
+                            } else {
+                                showToast("Erro ao processar o arquivo de backup.", "error");
+                                console.error("Erro no JSON:", err);
+                            }
+                        } finally {
+                            fileInput.value = "";
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+
+                getEl("importarDadosInput").addEventListener("change", importarDadosHandler);
+                getEl("labelImportarDados").addEventListener("click", () => getEl("importarDadosInput").click());
+                
+                getEl("btnSalvarConfig").addEventListener("click", () => { salvarConfiguracoesDosInputs(); fecharModal("modal-config"); });
+                getEl("categoriaModuloSelect").addEventListener("change", (e) => getEl("novaCategoriaInput").style.display = e.target.value === "_add_new_" ? "block" : "none");
+                getEl("tipoModuloProjeto").addEventListener("change", (e) => { const isReto = e.target.value === "reto"; getEl("dimensoes-container-reto").style.display = isReto ? "block" : "none"; getEl("dimensoes-container-canto").style.display = isReto ? "none" : "block"; });
+                getEl("moduloTipo").addEventListener("change", (e) => atualizarTodosOsHelpersNoModal(e.target.value));
+                ["filtroModulos", "filtroCatalogo"].forEach(filtroId => {
+                    const el = getEl(filtroId);
+                    if (el) {
+                        el.addEventListener("input", (e) => { 
+                            const termo = e.target.value.toLowerCase();
+                            const containerId = filtroId === "filtroModulos" ? "lista-modulos-salvos" : "modal-catalogo";
+                            const items = getEl(containerId).querySelectorAll(".catalogo-item"); 
+                            items.forEach(item => {
+                                const filterName = item.dataset.filterName || item.textContent.toLowerCase();
+                                item.style.display = filterName.includes(termo) ? "flex" : "none";
+                            }); 
+                        });
+                    }
+                });
+                
+                carregarDados();
+                carregarConfiguracoesParaInputs();
+                popularTodosSeletores();
+            }
+
+            document.addEventListener("DOMContentLoaded", inicializarApp);
+        </script>
+        
+    </body>
+</html>
