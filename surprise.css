@@ -1,0 +1,466 @@
+/**
+ * MARCENARIA PRO - ESTILOS SURPREENDENTES 🎨
+ * Animações e efeitos visuais inovadores
+ */
+
+/* ==================== COMANDOS DE VOZ ==================== */
+#btn-voz:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6) !important;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ==================== GAMIFICAÇÃO ==================== */
+#gamificacao-badge {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ==================== TOUR INTERATIVO ==================== */
+@keyframes pulse-border {
+    0%, 100% {
+        border-color: #fbbf24;
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7);
+    }
+    50% {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 15px rgba(251, 191, 36, 0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* ==================== CONQUISTAS ==================== */
+@keyframes conquista-popup {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    90% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+@keyframes confete-fall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ==================== MODO FOCO ==================== */
+.modo-foco {
+    filter: contrast(1.1) brightness(1.05);
+}
+
+.modo-foco * {
+    transition: all 0.3s ease;
+}
+
+/* ==================== EASTER EGGS ==================== */
+@keyframes rainbow {
+    0% { filter: hue-rotate(0deg); }
+    25% { filter: hue-rotate(90deg); }
+    50% { filter: hue-rotate(180deg); }
+    75% { filter: hue-rotate(270deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* ==================== ELEMENTOS INTERATIVOS ==================== */
+kbd {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border: 1px solid #d1d5db;
+    border-bottom: 3px solid #9ca3af;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    box-shadow: 0 2px 0 #9ca3af;
+    display: inline-block;
+    font-weight: 700;
+    color: #374151;
+}
+
+kbd:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 #9ca3af;
+    border-bottom: 1px solid #9ca3af;
+}
+
+/* ==================== CARDS INTERATIVOS ==================== */
+.card-hover-lift {
+    transition: all 0.3s ease;
+}
+
+.card-hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== PROGRESS BARS ANIMADAS ==================== */
+.progress-bar-animated {
+    background: linear-gradient(90deg, 
+        #0ea5e9 0%, 
+        #06b6d4 25%, 
+        #0ea5e9 50%, 
+        #06b6d4 75%, 
+        #0ea5e9 100%
+    );
+    background-size: 200% 100%;
+    animation: progress-flow 2s linear infinite;
+}
+
+@keyframes progress-flow {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ==================== BADGES ANIMADAS ==================== */
+.badge-pulse {
+    animation: badge-pulse 2s ease infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(236, 72, 153, 0);
+    }
+}
+
+/* ==================== BOTÕES PREMIUM ==================== */
+.btn-surprise {
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #06b6d4 100%);
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.btn-surprise:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
+}
+
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ==================== TOOLTIP MODERNO ==================== */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    background: #1f2937;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    border: 6px solid transparent;
+    border-top-color: #1f2937;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+/* ==================== LOADING MODERNO ==================== */
+.loading-modern {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f4f6;
+    border-top: 5px solid #8b5cf6;
+    border-radius: 50%;
+    animation: spin-modern 1s linear infinite;
+}
+
+@keyframes spin-modern {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==================== SPARKLE EFFECT ==================== */
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.sparkle {
+    position: relative;
+}
+
+.sparkle::before,
+.sparkle::after {
+    content: '✨';
+    position: absolute;
+    font-size: 1.5rem;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+.sparkle::before {
+    top: -10px;
+    left: -10px;
+}
+
+.sparkle::after {
+    bottom: -10px;
+    right: -10px;
+    animation-delay: 1s;
+}
+
+/* ==================== GLOW EFFECT ==================== */
+.glow {
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(139, 92, 246, 0.5),
+                    0 0 10px rgba(139, 92, 246, 0.3),
+                    0 0 15px rgba(139, 92, 246, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 10px rgba(139, 92, 246, 0.8),
+                    0 0 20px rgba(139, 92, 246, 0.6),
+                    0 0 30px rgba(139, 92, 246, 0.4);
+    }
+}
+
+/* ==================== SCROLL SUAVE ==================== */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ==================== SELEÇÃO PERSONALIZADA ==================== */
+::selection {
+    background: #8b5cf6;
+    color: white;
+}
+
+::-moz-selection {
+    background: #8b5cf6;
+    color: white;
+}
+
+/* ==================== SCROLLBAR CUSTOMIZADA ==================== */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    border-radius: 10px;
+    border: 2px solid #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+}
+
+/* ==================== ANIMAÇÃO DE ENTRADA ==================== */
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==================== HOVER SCALE ==================== */
+.hover-scale {
+    transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* ==================== GLASS MORPHISM ==================== */
+.glass-morphism {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ==================== NEUMORPHISM ==================== */
+.neumorphism {
+    background: #e0e5ec;
+    box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6),
+               -9px -9px 16px rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.neumorphism:active {
+    box-shadow: inset 9px 9px 16px rgba(163, 177, 198, 0.6),
+               inset -9px -9px 16px rgba(255, 255, 255, 0.5);
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 768px) {
+    #btn-voz {
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 1.5rem !important;
+    }
+    
+    #gamificacao-badge {
+        top: 20px !important;
+        right: 20px !important;
+        padding: 10px 15px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    kbd {
+        font-size: 0.8em;
+        padding: 3px 8px;
+    }
+}
+
+/* ==================== DARK MODE ==================== */
+[data-theme="dark"] #btn-voz {
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.6);
+}
+
+[data-theme="dark"] #gamificacao-badge {
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
+}
+
+[data-theme="dark"] kbd {
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    border: 1px solid #4b5563;
+    border-bottom: 3px solid #6b7280;
+    box-shadow: 0 2px 0 #6b7280;
+    color: #f3f4f6;
+}
+
+[data-theme="dark"] .neumorphism {
+    background: #1f2937;
+    box-shadow: 9px 9px 16px rgba(0, 0, 0, 0.4),
+               -9px -9px 16px rgba(55, 65, 81, 0.2);
+}
+
+/* ==================== IMPRESSÃO ==================== */
+@media print {
+    #btn-voz,
+    #gamificacao-badge {
+        display: none !important;
+    }
+}
+
+/* ==================== ACESSIBILIDADE ==================== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ==================== HIGH CONTRAST MODE ==================== */
+@media (prefers-contrast: high) {
+    .btn-surprise {
+        border: 3px solid currentColor;
+    }
+    
+    kbd {
+        border: 2px solid currentColor;
+    }
+}

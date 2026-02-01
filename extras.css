@@ -1,0 +1,476 @@
+/* ==================== CALCULADORA ==================== */
+.calculadora-display {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    color: white;
+    padding: 25px;
+    font-size: 2rem;
+    font-weight: 900;
+    text-align: right;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.calculadora-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.calc-btn {
+    padding: 20px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    background: #f3f4f6;
+    color: #1f2937;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.calc-btn:hover {
+    background: #e5e7eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.calc-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.calc-btn.calc-op {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+
+.calc-btn.calc-op:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.calc-btn.calc-igual {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.calc-btn.calc-igual:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.calc-btn.calc-clear {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.calc-btn.calc-clear:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* ==================== GRÁFICOS ==================== */
+.grafico-barras {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: 15px;
+    height: 300px;
+    padding: 20px;
+    background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+    border-radius: 15px;
+    overflow-x: auto;
+}
+
+.barra-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+.barra {
+    width: 60px;
+    min-height: 30px;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}
+
+.barra:hover {
+    transform: scaleY(1.05);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+}
+
+.barra-valor {
+    color: white;
+    font-weight: 900;
+    font-size: 0.9rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.barra-label {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-align: center;
+    max-width: 80px;
+}
+
+/* ==================== MODO APRESENTAÇÃO ==================== */
+#apresentacao-overlay::-webkit-scrollbar {
+    width: 12px;
+}
+
+#apresentacao-overlay::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+}
+
+#apresentacao-overlay::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+}
+
+#apresentacao-overlay::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+/* ==================== COMPARAÇÃO ==================== */
+.comparacao-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.comparacao-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* ==================== WHATSAPP ==================== */
+.whatsapp-preview {
+    background: #dcf8c6;
+    padding: 15px;
+    border-radius: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #c8e6c9;
+}
+
+/* ==================== NOTAS ==================== */
+.nota-item {
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #6366f1;
+    transition: all 0.2s ease;
+}
+
+.nota-item:hover {
+    background: #f3f4f6;
+    border-left-width: 6px;
+}
+
+.nota-autor {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nota-texto {
+    color: #1f2937;
+    line-height: 1.6;
+}
+
+/* ==================== LEMBRETES ==================== */
+.lembrete-badge {
+    position: fixed;
+    top: 20px;
+    right: 80px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 9999;
+    animation: pulse 2s infinite;
+}
+
+.lembrete-badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(239, 68, 68, 0.6);
+    }
+}
+
+.alerta-item {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.alerta-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.alerta-item.tipo-pagamento {
+    border-left: 4px solid #ef4444;
+}
+
+.alerta-item.tipo-antigo {
+    border-left: 4px solid #f59e0b;
+}
+
+/* ==================== BACKUP ==================== */
+.backup-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.backup-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.backup-card:hover {
+    border-color: #0ea5e9;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(14, 165, 233, 0.2);
+}
+
+.backup-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.backup-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+
+.backup-desc {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 768px) {
+    .calculadora-grid {
+        gap: 8px;
+    }
+    
+    .calc-btn {
+        padding: 15px;
+        font-size: 1.3rem;
+    }
+    
+    .calculadora-display {
+        font-size: 1.5rem;
+        padding: 20px;
+    }
+    
+    .grafico-barras {
+        height: 250px;
+        padding: 15px;
+    }
+    
+    .barra {
+        width: 50px;
+    }
+    
+    .backup-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .lembrete-badge {
+        top: 10px;
+        right: 10px;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ==================== DARK MODE ==================== */
+[data-theme="dark"] .calculadora-display {
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+}
+
+[data-theme="dark"] .calc-btn {
+    background: #374151;
+    color: #f3f4f6;
+}
+
+[data-theme="dark"] .calc-btn:hover {
+    background: #4b5563;
+}
+
+[data-theme="dark"] .grafico-barras {
+    background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+}
+
+[data-theme="dark"] .barra-label {
+    color: #9ca3af;
+}
+
+[data-theme="dark"] .nota-item {
+    background: #1f2937;
+    border-left-color: #818cf8;
+}
+
+[data-theme="dark"] .nota-texto {
+    color: #f3f4f6;
+}
+
+[data-theme="dark"] .nota-autor {
+    color: #9ca3af;
+}
+
+[data-theme="dark"] .alerta-item {
+    background: #1f2937;
+}
+
+[data-theme="dark"] .backup-card {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-color: #374151;
+}
+
+[data-theme="dark"] .backup-card:hover {
+    border-color: #60a5fa;
+}
+
+[data-theme="dark"] .backup-title {
+    color: #f3f4f6;
+}
+
+[data-theme="dark"] .backup-desc {
+    color: #9ca3af;
+}
+
+/* ==================== ANIMAÇÕES EXTRAS ==================== */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}
+
+.bounce-in {
+    animation: bounceIn 0.6s ease-out;
+}
+
+/* ==================== UTILITÁRIOS ==================== */
+.text-gradient {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.shadow-xl {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== PRINTS ==================== */
+@media print {
+    .modal-close,
+    .btn,
+    button {
+        display: none !important;
+    }
+    
+    .modal-overlay {
+        position: static;
+        background: white;
+    }
+    
+    .modal-content {
+        box-shadow: none;
+        max-width: 100%;
+    }
+}

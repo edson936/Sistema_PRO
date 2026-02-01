@@ -1,0 +1,666 @@
+/**
+ * MARCENARIA PRO - Estilos das Melhorias
+ * Versão: 2026.2.0
+ * Estilos para Loading, Dark Mode, Toast, Confirmações, etc.
+ */
+
+/* ==================== LOADING OVERLAY ==================== */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+#loading-overlay.active {
+    display: flex;
+}
+
+.loading-spinner {
+    text-align: center;
+    color: white;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* ==================== SISTEMA DE TOAST ==================== */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 280px;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: all;
+    border-left: 4px solid #6366f1;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    flex: 1;
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.95rem;
+}
+
+/* Tipos de Toast */
+.toast-success {
+    border-left-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, white 100%);
+}
+
+.toast-error {
+    border-left-color: #ef4444;
+    background: linear-gradient(135deg, #fef2f2 0%, white 100%);
+}
+
+.toast-warning {
+    border-left-color: #f59e0b;
+    background: linear-gradient(135deg, #fffbeb 0%, white 100%);
+}
+
+.toast-info {
+    border-left-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, white 100%);
+}
+
+/* ==================== CONFIRMAÇÃO (DIALOG) ==================== */
+.confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    padding: 20px;
+}
+
+.confirm-overlay.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+.confirm-dialog {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    max-width: 450px;
+    width: 100%;
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.confirm-dialog h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.5rem;
+    color: #1f2937;
+    border: none;
+    padding: 0;
+}
+
+.confirm-dialog p {
+    margin: 0 0 24px 0;
+    color: #6b7280;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.confirm-buttons button {
+    min-width: 100px;
+}
+
+/* Tipos de Dialog */
+.confirm-dialog.danger h3 {
+    color: #ef4444;
+}
+
+.confirm-dialog.warning h3 {
+    color: #f59e0b;
+}
+
+.confirm-dialog.info h3 {
+    color: #3b82f6;
+}
+
+/* ==================== DARK MODE ==================== */
+[data-theme="dark"] {
+    --cor-fundo: #0f172a;
+    --cor-card: #1e293b;
+    --cor-input-bg: #334155;
+    --cor-texto: #f1f5f9;
+    --cor-texto-suave: #cbd5e1;
+    --cor-borda: #475569;
+}
+
+[data-theme="dark"] body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+[data-theme="dark"] header {
+    background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+}
+
+[data-theme="dark"] .card {
+    background-color: var(--cor-card);
+    border-color: var(--cor-borda);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: var(--cor-input-bg);
+    color: var(--cor-texto);
+    border-color: var(--cor-borda);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+    background-color: #475569;
+    border-color: #6366f1;
+}
+
+[data-theme="dark"] th {
+    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+    color: var(--cor-texto);
+}
+
+[data-theme="dark"] td {
+    color: var(--cor-texto-suave);
+}
+
+[data-theme="dark"] tbody tr:hover {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+}
+
+[data-theme="dark"] .toast {
+    background: #1e293b;
+    border-left-color: #6366f1;
+}
+
+[data-theme="dark"] .toast-message {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .confirm-dialog {
+    background: #1e293b;
+}
+
+[data-theme="dark"] .confirm-dialog h3 {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .confirm-dialog p {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .modal-content {
+    background: #1e293b;
+}
+
+/* Botão de Dark Mode */
+.dark-mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.dark-mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1) rotate(20deg);
+}
+
+[data-theme="dark"] .dark-mode-toggle {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==================== ANIMAÇÕES ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ==================== MELHORIAS DE UX ==================== */
+
+/* Feedback visual ao clicar */
+.btn:active,
+button:active {
+    transform: scale(0.98);
+}
+
+/* Destaque em inputs ao focar */
+input:focus,
+select:focus,
+textarea:focus {
+    animation: inputFocus 0.3s ease;
+}
+
+@keyframes inputFocus {
+    0% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+    100% {
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+}
+
+/* Transição suave entre temas */
+body,
+.card,
+input,
+select,
+textarea,
+button,
+th,
+td {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ==================== ACESSIBILIDADE ==================== */
+
+/* Foco visível para navegação por teclado */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+    outline: 3px solid #6366f1;
+    outline-offset: 2px;
+}
+
+/* Skip link para acessibilidade */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #6366f1;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* ==================== RESPONSIVIDADE MELHORADA ==================== */
+
+@media (max-width: 768px) {
+    #toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    .toast {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .confirm-dialog {
+        padding: 24px;
+        margin: 0 16px;
+    }
+    
+    .confirm-buttons {
+        flex-direction: column-reverse;
+    }
+    
+    .confirm-buttons button {
+        width: 100%;
+    }
+    
+    .dark-mode-toggle {
+        width: 44px;
+        height: 44px;
+        font-size: 1.3rem;
+        top: 15px;
+        right: 15px;
+    }
+}
+
+/* ==================== MELHORIAS EM TABELAS ==================== */
+
+/* Tabelas responsivas com scroll horizontal suave */
+/* Chrome/Safari Webkit */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #e5e7eb;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #6366f1;
+    border-radius: 4px;
+}
+
+/* Firefox (versões novas) */
+@supports (scrollbar-width: thin) {
+    .table-responsive {
+        scrollbar-width: thin;
+        scrollbar-color: #6366f1 #e5e7eb;
+    }
+
+    [data-theme="dark"] .table-responsive {
+        scrollbar-color: #6366f1 #334155;
+    }
+}
+
+/* Destaque em linha selecionada */
+tbody tr.selected {
+    background: rgba(99, 102, 241, 0.1);
+    border-left: 4px solid #6366f1;
+}
+
+/* Ordenação em tabelas */
+th.sortable {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    position: relative;
+    padding-right: 30px;
+}
+
+th.sortable:hover {
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+}
+
+th.sortable::after {
+    content: '⇅';
+    position: absolute;
+    right: 10px;
+    opacity: 0.3;
+}
+
+th.sortable.asc::after {
+    content: '↑';
+    opacity: 1;
+}
+
+th.sortable.desc::after {
+    content: '↓';
+    opacity: 1;
+}
+
+/* ==================== BADGES E STATUS ==================== */
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.badge-info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+[data-theme="dark"] .badge-success {
+    background: #065f46;
+    color: #d1fae5;
+}
+
+[data-theme="dark"] .badge-warning {
+    background: #92400e;
+    color: #fef3c7;
+}
+
+[data-theme="dark"] .badge-danger {
+    background: #991b1b;
+    color: #fee2e2;
+}
+
+[data-theme="dark"] .badge-info {
+    background: #1e40af;
+    color: #dbeafe;
+}
+
+/* ==================== SKELETON LOADING ==================== */
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+[data-theme="dark"] .skeleton {
+    background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+    background-size: 200% 100%;
+}
+
+/* ==================== DRAG AND DROP VISUAL ==================== */
+
+.drag-area {
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.drag-area.drag-over {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+[data-theme="dark"] .drag-area {
+    border-color: #475569;
+}
+
+[data-theme="dark"] .drag-area.drag-over {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.1);
+}
+
+/* ==================== PROGRESS BAR ==================== */
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+[data-theme="dark"] .progress-bar {
+    background: #334155;
+}
+
+/* ==================== DICAS (TOOLTIPS) ==================== */
+
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: #1f2937;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* ==================== PRINT STYLES ==================== */
+
+@media print {
+    #loading-overlay,
+    #toast-container,
+    .confirm-overlay,
+    .dark-mode-toggle,
+    button,
+    .btn {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
